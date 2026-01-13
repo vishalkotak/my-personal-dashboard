@@ -1,9 +1,10 @@
 # My Personal Dashboard
 
-A personal health dashboard that integrates with WHOOP to display health metrics, recovery scores, sleep analysis, and more.
+A personal health dashboard that integrates with WHOOP to display health metrics, recovery scores, sleep analysis, and hypertrophy workout tracking.
 
 ## Features
 
+### WHOOP Health Tracking
 - **WHOOP Integration**: OAuth2 authentication with WHOOP API
 - **Health Metrics**: HRV, resting heart rate, recovery scores
 - **Sleep Analysis**: Deep sleep, REM, sleep efficiency tracking
@@ -11,6 +12,14 @@ A personal health dashboard that integrates with WHOOP to display health metrics
 - **Gamification**: Streaks and achievements for motivation
 - **Offline Support**: Local SQLite database for fast access
 - **Auto Sync**: Daily cron job to fetch latest data
+
+### Hypertrophy Training
+- **4-Day Upper/Lower Split**: Pre-configured workout program
+- **Workout Logging**: Track sets, reps, and weight for each exercise
+- **Progressive Overload**: Auto-suggests weight increases when you hit rep targets
+- **Baseline Weights**: Starting weights calibrated to your body profile
+- **Rest Timer**: Built-in timer between sets
+- **Volume Tracking**: Chart showing total volume over time
 
 ## Project Structure
 
@@ -27,6 +36,8 @@ my-personal-dashboard/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── HealthDashboard.jsx
+│   │   │   ├── HypertrophyDashboard.jsx
+│   │   │   ├── HypertrophyDashboard.css
 │   │   │   ├── FinanceDashboard.jsx
 │   │   │   └── OthersDashboard.jsx
 │   │   ├── App.jsx
@@ -112,6 +123,8 @@ This starts:
 
 ### API Endpoints
 
+#### WHOOP Health
+
 | Endpoint | Description |
 |----------|-------------|
 | `GET /health` | Health check |
@@ -122,6 +135,20 @@ This starts:
 | `GET /sleep` | Get sleep data |
 | `GET /workouts` | Get workout data |
 | `POST /sync` | Trigger manual sync |
+
+#### Hypertrophy Training
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /gym/templates` | Get workout templates |
+| `GET /gym/templates/{id}` | Get template with exercises |
+| `POST /gym/sessions` | Start a workout session |
+| `GET /gym/sessions/{id}` | Get session details |
+| `PUT /gym/sessions/{id}/complete` | Complete a session |
+| `POST /gym/sessions/{id}/sets` | Log a set |
+| `DELETE /gym/sessions/{id}/sets/{set}` | Delete a set |
+| `GET /gym/exercises/{id}/suggest` | Get weight suggestion |
+| `GET /gym/volume-history` | Get volume trends |
 
 API documentation: http://localhost:8000/docs
 
