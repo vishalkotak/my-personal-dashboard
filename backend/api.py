@@ -32,13 +32,14 @@ from models import (
     SleepSummary,
     WorkoutSummary,
 )
-from database import HealthDataRepository, init_database
+from database import HealthDataRepository, HypertrophyRepository, init_database, seed_workout_program
 from whoop_client import WhoopClient
 
 load_dotenv()
 
 # Initialize database on startup
 init_database()
+seed_workout_program()
 
 # ========== App Configuration ==========
 
@@ -75,8 +76,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Repository instance
+# Repository instances
 repo = HealthDataRepository()
+hypertrophy_repo = HypertrophyRepository()
 
 # Global client instance (for auth only)
 _client: Optional[WhoopClient] = None
@@ -469,6 +471,243 @@ def get_summary(
         recent_sleep=recent_sleep,
         recent_workouts=recent_workouts,
     )
+
+
+# ========== Hypertrophy Tracking Endpoints ==========
+
+@app.get(
+    "/gym/exercises",
+    tags=["Hypertrophy"],
+    summary="Get all exercises",
+)
+def get_exercises():
+    """Get all available exercises."""
+    return hypertrophy_repo.get_all_exercises()
+
+
+@app.get(
+    "/gym/templates",
+    tags=["Hypertrophy"],
+    summary="Get workout templates",
+)
+def get_workout_templates():
+    """Get all workout templates (Upper A, Lower A, etc.)."""
+    return hypertrophy_repo.get_all_templates()
+
+
+@app.get(
+    "/gym/templates/{template_id}",
+    tags=["Hypertrophy"],
+    summary="Get template with exercises",
+)
+def get_template_details(template_id: int):
+    """Get a workout template with all its exercises and targets."""
+    template = hypertrophy_repo.get_template_with_exercises(template_id)
+    if not template:
+        raise HTTPException(status_code=404, detail="Template not found")
+    return template
+
+
+@app.post(
+    "/gym/sessions",
+    tags=["Hypertrophy"],
+    summary="Start a new gym session",
+)
+def create_gym_session(
+    template_id: int = Query(..., description="Workout template ID"),
+    session_date: str = Query(None, description="Session date (YYYY-MM-DD), defaults to today"),
+):
+    """Start a new gym session for tracking."""
+    if session_date:
+        try:
+            sess_date = datetime.strptime(session_date, "%Y-%m-%d").date()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+    else:
+        sess_date = date.today()
+
+    session_id = hypertrophy_repo.create_session(
+        template_id=template_id,
+        session_date=sess_date,
+        started_at=datetime.now()
+    )
+
+    # Return the session with template exercises
+    template = hypertrophy_repo.get_template_with_exercises(template_id)
+    return {
+        "session_id": session_id,
+        "template": template,
+        "date": sess_date.isoformat()
+    }
+
+
+@app.get(
+    "/gym/sessions",
+    tags=["Hypertrophy"],
+    summary="Get gym sessions",
+)
+def get_gym_sessions(
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    days: int = Query(30, description="Days to fetch if dates not specified", ge=1, le=365),
+    limit: int = Query(None, description="Maximum number of sessions to return"),
+):
+    """Get gym sessions within date range."""
+    if limit:
+        return hypertrophy_repo.get_recent_sessions(limit)
+
+    start_d, end_d = parse_date_range(start_date, end_date, days)
+    return hypertrophy_repo.get_sessions_by_date_range(start_d, end_d)
+
+
+@app.get(
+    "/gym/sessions/{session_id}",
+    tags=["Hypertrophy"],
+    summary="Get session details",
+)
+def get_session_details(session_id: int):
+    """Get a gym session with all logged sets."""
+    session = hypertrophy_repo.get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session
+
+
+@app.post(
+    "/gym/sessions/{session_id}/complete",
+    tags=["Hypertrophy"],
+    summary="Complete a gym session",
+)
+def complete_gym_session(session_id: int):
+    """Mark a gym session as completed."""
+    hypertrophy_repo.complete_session(session_id)
+    return {"status": "completed", "session_id": session_id}
+
+
+@app.post(
+    "/gym/sessions/{session_id}/sets",
+    tags=["Hypertrophy"],
+    summary="Log a set",
+)
+def log_exercise_set(
+    session_id: int,
+    exercise_id: int = Query(..., description="Exercise ID"),
+    set_number: int = Query(..., description="Set number (1, 2, 3...)"),
+    weight_lbs: float = Query(..., description="Weight in pounds"),
+    reps: int = Query(..., description="Number of reps completed"),
+    rir: int = Query(None, description="Reps in Reserve (0-5)"),
+    is_warmup: bool = Query(False, description="Is this a warmup set?"),
+    notes: str = Query(None, description="Optional notes"),
+):
+    """Log a single set for an exercise."""
+    set_id = hypertrophy_repo.log_set(
+        session_id=session_id,
+        exercise_id=exercise_id,
+        set_number=set_number,
+        weight_lbs=weight_lbs,
+        reps=reps,
+        rir=rir,
+        is_warmup=is_warmup,
+        notes=notes
+    )
+    return {"set_id": set_id, "logged": True}
+
+
+@app.put(
+    "/gym/sets/{set_id}",
+    tags=["Hypertrophy"],
+    summary="Update a set",
+)
+def update_exercise_set(
+    set_id: int,
+    weight_lbs: float = Query(None, description="Weight in pounds"),
+    reps: int = Query(None, description="Number of reps"),
+    rir: int = Query(None, description="Reps in Reserve"),
+    notes: str = Query(None, description="Notes"),
+):
+    """Update an existing set."""
+    hypertrophy_repo.update_set(set_id, weight_lbs, reps, rir, notes)
+    return {"set_id": set_id, "updated": True}
+
+
+@app.delete(
+    "/gym/sets/{set_id}",
+    tags=["Hypertrophy"],
+    summary="Delete a set",
+)
+def delete_exercise_set(set_id: int):
+    """Delete a logged set."""
+    hypertrophy_repo.delete_set(set_id)
+    return {"set_id": set_id, "deleted": True}
+
+
+@app.get(
+    "/gym/exercises/{exercise_id}/history",
+    tags=["Hypertrophy"],
+    summary="Get exercise history",
+)
+def get_exercise_history(
+    exercise_id: int,
+    limit: int = Query(20, description="Number of records to return"),
+):
+    """Get recent history for a specific exercise."""
+    return hypertrophy_repo.get_exercise_history(exercise_id, limit)
+
+
+@app.get(
+    "/gym/exercises/{exercise_id}/suggest",
+    tags=["Hypertrophy"],
+    summary="Get weight suggestion",
+)
+def get_weight_suggestion(exercise_id: int):
+    """Get AI-powered weight suggestion based on progressive overload."""
+    return hypertrophy_repo.suggest_weight(exercise_id)
+
+
+@app.get(
+    "/gym/exercises/{exercise_id}/last",
+    tags=["Hypertrophy"],
+    summary="Get last workout for exercise",
+)
+def get_last_workout(exercise_id: int):
+    """Get the last workout data for an exercise."""
+    return hypertrophy_repo.get_last_workout_for_exercise(exercise_id)
+
+
+@app.get(
+    "/gym/stats",
+    tags=["Hypertrophy"],
+    summary="Get workout statistics",
+)
+def get_workout_stats(
+    days: int = Query(30, description="Number of days to analyze", ge=1, le=365),
+):
+    """Get workout statistics including volume and sets by muscle group."""
+    return hypertrophy_repo.get_workout_stats(days)
+
+
+@app.get(
+    "/gym/volume-history",
+    tags=["Hypertrophy"],
+    summary="Get volume history for chart",
+)
+def get_volume_history(
+    days: int = Query(30, description="Number of days", ge=1, le=365),
+):
+    """Get daily volume history for charting."""
+    return hypertrophy_repo.get_volume_history(days)
+
+
+@app.get(
+    "/gym/records",
+    tags=["Hypertrophy"],
+    summary="Get personal records",
+)
+def get_personal_records(
+    exercise_id: int = Query(None, description="Filter by exercise ID"),
+):
+    """Get personal records, optionally filtered by exercise."""
+    return hypertrophy_repo.get_personal_records(exercise_id)
 
 
 # ========== Sync Endpoint ==========

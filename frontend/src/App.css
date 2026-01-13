@@ -74,6 +74,37 @@
   display: inline;
 }
 
+/* Sub-tab Navigation */
+.subtab-nav {
+  background: #0a0a0f;
+  border-bottom: 1px solid #1C1C1E;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+}
+
+.subtab-btn {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #8E8E93;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.subtab-btn:hover {
+  color: #fff;
+}
+
+.subtab-btn.active {
+  color: #FF9F0A;
+  border-bottom-color: #FF9F0A;
+}
+
 /* Main Content */
 .app-main {
   flex: 1;
