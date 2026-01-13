@@ -1,0 +1,51 @@
+# Environment and secrets
+.env
+.whoop_token.json
+backend/.env
+backend/.whoop_token.json
+
+# Personal health data
+*.db
+health_data.db
+backend/health_data.db
+whoop_health_data.json
+backend/whoop_health_data.json
+
+# Logs
+logs/
+*.log
+sync.log
+
+# Process IDs
+.pids/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# LaunchAgent (contains hardcoded paths)
+# Keep the template but ignore installed version
