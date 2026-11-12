@@ -87,7 +87,7 @@ iPhone (HealthKit) ──HealthSync app──▶ Supabase Postgres: public.healt
 
 ## The double-counting caveat (please read)
 
-The iPhone app uploads every raw sample from **every** source (the iPhone itself *and* the Apple Watch), but not which device each one came from. If you walk with both, both record the same steps. A plain `SUM(value)` would count them twice. In the demo data, which copies that pattern, the raw sum is often 30–80% too high.
+The iPhone app uploads every raw sample from **every** source (the iPhone itself *and* the Apple Watch), but not which device each one came from. If you walk with both, both record the same steps. A plain `SUM(value)` would count them twice. In the demo data, which copies that pattern, the raw step sum is typically 40–100% too high (median about 70%).
 
 Apple's Health app gets around this by choosing one source at a time from a priority list. Without the source, the dashboard does the next best thing:
 
