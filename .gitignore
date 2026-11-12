@@ -42,3 +42,7 @@ Thumbs.db
 dashboard/desktop/build/
 dashboard/desktop/HealthDashboard.xcodeproj/
 dashboard/desktop/Assets.xcassets/
+
+# Notes the health agent saves (dashboard/backend/app/agent_tools.py)
+dashboard/agent-notes.json
+dashboard/agent-notes.tmp

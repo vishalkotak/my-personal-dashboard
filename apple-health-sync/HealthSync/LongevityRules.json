@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "last_reviewed": "2026-11-12",
+  "limits": {
+    "max_nudges_per_day": 3,
+    "quiet_hours_start": 22,
+    "quiet_hours_end": 8,
+    "weekly_report_weekday": 1,
+    "weekly_report_hour": 18
+  },
+  "rules": [
+    {
+      "id": "steps",
+      "title": "Daily steps",
+      "target": 8000,
+      "target_age_60_plus": 6000,
+      "checkpoints": [[12, 0.30], [15, 0.55], [18, 0.75], [20, 0.90]],
+      "evidence": {
+        "cite": "Paluch et al., Lancet Public Health 2022",
+        "claim": "Benefit keeps rising to 8–10k steps/day under 60. Top quarter (~11k) had about half the mortality of the bottom (~3.5k).",
+        "url": "https://doi.org/10.1016/S2468-2667(21)00302-9"
+      },
+      "messages": [
+        "{value} steps and it's {time}. Pace says {expected}. Your chair is filing for overtime.",
+        "{value} steps. Target {target}. That's {remaining} to go — get up, soldier.",
+        "{time} check: {value} steps. People who walk 8k+ a day die later. Move."
+      ]
+    },
+    {
+      "id": "exercise",
+      "title": "Weekly exercise",
+      "target": 150,
+      "check_weekdays": [5, 6, 7],
+      "check_hour": 17,
+      "evidence": {
+        "cite": "Lee et al., Circulation 2022",
+        "claim": "Nearly all the mortality benefit comes at 150–300 vigorous or 300–600 moderate minutes a week.",
+        "url": "https://doi.org/10.1161/CIRCULATIONAHA.121.058162"
+      },
+      "messages": [
+        "{value} exercise minutes this week. The floor is {target}. You're behind and the week is not.",
+        "Weekly exercise: {value}/{target} min. {remaining} minutes short. Lace up.",
+        "{value} minutes of exercise since Monday. The research wants {target}. Embarrassing. Fix it."
+      ]
+    },
+    {
+      "id": "strength",
+      "title": "Strength training",
+      "target": 30,
+      "check_weekdays": [5, 7],
+      "check_hour": 17,
+      "evidence": {
+        "cite": "Momma et al., Br J Sports Med 2022",
+        "claim": "30–60 min/week of muscle-strengthening is linked to 10–20% lower mortality — more when combined with cardio.",
+        "url": "https://doi.org/10.1136/bjsports-2021-105061"
+      },
+      "messages": [
+        "{value} minutes of strength training this week. Target {target}. Those weights aren't going to lift themselves.",
+        "Strength: {value}/{target} min. Muscle is a longevity organ. Go use it.",
+        "Zero excuses, {value} minutes of lifting. Get {remaining} more before Sunday."
+      ]
+    },
+    {
+      "id": "sleep",
+      "title": "Sleep",
+      "min_hours": 7,
+      "max_bedtime_shift_minutes": 60,
+      "check_hour": 8,
+      "evidence": {
+        "cite": "Windred et al., SLEEP 2024; Yin et al., JAHA 2017",
+        "claim": "Regular sleep timing predicted mortality as well as duration (20–48% lower risk); risk is lowest around 7 hours.",
+        "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10782489/"
+      },
+      "messages_short": [
+        "{value} of sleep. Minimum is 7 hours. Whatever you were doing at midnight wasn't worth it.",
+        "You slept {value}. The research says 7+. Bed earlier tonight — that's an order."
+      ],
+      "messages_irregular": [
+        "Bedtime was {shift} off your usual. Regular sleepers live longer. Pick a time and stick to it.",
+        "Your bedtime wandered {shift} from normal. Consistency beats heroics. Same time tonight."
+      ]
+    },
+    {
+      "id": "resting_hr",
+      "title": "Resting heart rate",
+      "report_only": true,
+      "evidence": {
+        "cite": "Zhang et al., CMAJ 2016",
+        "claim": "Each extra 10 bpm of resting heart rate is linked to ~9% higher all-cause mortality.",
+        "url": "https://pubmed.ncbi.nlm.nih.gov/26598376/"
+      }
+    },
+    {
+      "id": "vo2max",
+      "title": "Cardio fitness (VO2 max)",
+      "report_only": true,
+      "evidence": {
+        "cite": "Kodama et al., JAMA 2009; Mandsager et al., JAMA Netw Open 2018",
+        "claim": "The strongest single predictor: each +1 MET (3.5 ml/kg/min) ≈ 13% lower mortality, with no plateau. Apple Watch reads ~6 low, so watch the trend.",
+        "url": "https://doi.org/10.1001/jamanetworkopen.2018.3605"
+      }
+    }
+  ]
+}

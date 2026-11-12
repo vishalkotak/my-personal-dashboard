@@ -76,6 +76,31 @@ It installs **Health Dashboard** in `~/Applications`, so you can open it from Sp
 
 There's still a small local server, but you never manage it. When you open the app, it starts the Python backend on a free port on `127.0.0.1` and shows the dashboard in its own window. When you quit, the backend stops. If the app crashes, the backend notices within a second and exits too. The app reads the same `dashboard/.env`, and links to other sites open in your normal browser. Re-run `build.sh` after you pull changes. If the backend can't start, the window shows the reason and the last lines of `dashboard/logs/app.log`.
 
+## Talk to your data (MCP)
+
+You can ask questions about your health in Claude Code, the Claude desktop app, or any MCP client: *"How did my sleep change this month?"*, *"Is my resting heart rate trending down?"*, *"Where am I against the longevity research?"* An MCP server gives the agent ten tools over the same data the dashboard shows:
+
+| Tool | What it answers |
+|---|---|
+| `list_available_data` | What exists, how much, and how fresh it is |
+| `get_metric` | Any metric over a date range, per day, week or month |
+| `compare_periods` | A metric in period A vs. period B |
+| `get_sleep` | Sleep per night, average duration, and bedtime regularity |
+| `get_workouts` | Workouts by type and by week, plus strength-training minutes |
+| `longevity_status` | Each research-backed marker: your value, the target, and the study |
+| `get_research` | The evidence behind the targets, with links |
+| `remember` / `recall` / `forget` | Context you mention, like an illness, injury or goal, kept in a local file |
+
+To add it to Claude Code:
+
+```bash
+claude mcp add health --scope user -- "$PWD/dashboard/mcp-server.sh"
+```
+
+Then ask away in any session. The server starts when the client needs it, using the read-only database login from `dashboard/.env`, so it can't change anything. The tools return summaries (daily totals and averages, or weekly and monthly ones for long ranges) rather than raw samples. A year of resting heart rate fits in about 1 KB, so not much of your data goes to the model. Notes are saved in `dashboard/agent-notes.json` (gitignored and readable only by you).
+
+**Privacy:** the answers the tools return are sent to the model provider. With Claude Code on a Pro or Max plan, Anthropic's consumer terms apply, and you control training in claude.ai → Settings → Privacy. API keys fall under the commercial terms, which don't train on your data and delete it within 30 days. The agent isn't a doctor, and its instructions tell it to send anything that looks medical to a clinician.
+
 ## How it fits together
 
 ```

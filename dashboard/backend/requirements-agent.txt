@@ -1,0 +1,20 @@
+# Extra dependencies for the MCP server (app/mcp_server.py), every package pinned exactly.
+# Install on top of requirements.txt:  .venv/bin/pip install -r requirements-agent.txt
+# Direct dependency: mcp. The rest are what it pulls in beyond requirements.txt.
+-r requirements.txt
+attrs==26.1.0
+cffi==2.1.1
+cryptography==50.0.2
+httpcore2==2.16.0
+httpx2==2.16.0
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+mcp==2.3.0
+mcp-types==2.3.0
+pycparser==3.12
+PyJWT==2.15.1
+python-multipart==0.0.33
+referencing==0.37.0
+rpds-py==2026.9.1
+sse-starlette==3.7.0
+truststore==0.10.5
