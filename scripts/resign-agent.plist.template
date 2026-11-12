@@ -2,11 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Runs the re-sign script at 09:00, 15:00 and 21:00. If the Mac is asleep, launchd runs it on wake.
      Install:   scripts/install-agent.sh   (fills in the paths and loads it)
-     Remove:    launchctl bootout gui/$(id -u)/com.vishalkotak.healthsync.resign && rm ~/Library/LaunchAgents/com.vishalkotak.healthsync.resign.plist -->
+     Remove:    launchctl bootout gui/$(id -u)/local.healthsync.resign && rm ~/Library/LaunchAgents/local.healthsync.resign.plist -->
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.vishalkotak.healthsync.resign</string>
+    <string>local.healthsync.resign</string>
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>

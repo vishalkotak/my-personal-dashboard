@@ -2,7 +2,7 @@
 # Keeps HealthSync alive on a FREE Apple developer account.
 #
 # Free ("Personal Team") signing expires after 7 days. This script runs on a schedule
-# (see com.vishalkotak.healthsync.resign.plist). When the profile installed on the phone
+# (see local.healthsync.resign.plist). When the profile installed on the phone
 # is within RENEW_BEFORE_HOURS of expiring, it asks Apple for a fresh 7-day profile,
 # rebuilds, and reinstalls over USB or Wi-Fi. App data on the phone is preserved.
 #

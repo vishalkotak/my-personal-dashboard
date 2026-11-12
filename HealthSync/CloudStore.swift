@@ -13,8 +13,8 @@ import HealthKit
 /// Requires a PAID Apple Developer account. To enable: return `CloudStore()` from
 /// `Backends.current` and add the iCloud entitlements to project.yml (see README).
 actor CloudStore: HealthBackend {
-    /// Must match `com.apple.developer.icloud-container-identifiers` in project.yml.
-    static let containerID = "iCloud.com.vishalkotak.HealthSync"
+    /// "iCloud.<bundle id>" — matches the container declared in project.yml.
+    static let containerID = "iCloud." + (Bundle.main.bundleIdentifier ?? "")
     static let recordType = "HealthSample"
 
     private let container = CKContainer(identifier: CloudStore.containerID)

@@ -2,7 +2,7 @@
 # Installs (or reinstalls) the LaunchAgent that runs resign-and-install.sh 3x a day.
 set -euo pipefail
 DIR="$(cd "$(dirname "$0")" && pwd)"
-LABEL="com.vishalkotak.healthsync.resign"
+LABEL="local.healthsync.resign"
 DEST="$HOME/Library/LaunchAgents/$LABEL.plist"
 
 sed -e "s#__SCRIPT__#$DIR/resign-and-install.sh#" \

@@ -27,12 +27,17 @@ This went through a few versions, and the reasoning is worth keeping:
 
 You need a Mac with Xcode, an iPhone, and a free Supabase project.
 
-1. **Supabase**
+Everything below runs from this folder (`apple-health-sync/` in the dashboard repo).
+
+1. **Supabase** (your own project — every user brings their own database)
    - SQL Editor → run `supabase/schema.sql`.
    - Authentication → Sign In / Providers → turn on **Allow anonymous sign-ins**.
-2. **Local config** (kept out of git)
-   - `cp Config/Secrets.example.xcconfig Config/Secrets.xcconfig` and fill in the Supabase URL, the **publishable** key, and your Apple Team ID.
-   - `cp scripts/local.env.example scripts/local.env` and fill in your iPhone's IDs.
+2. **Local config** (both files are gitignored, so your values never end up in a commit)
+   - `cp Config/Secrets.example.xcconfig Config/Secrets.xcconfig` and fill in:
+     - the Supabase URL and the **publishable** key (never the secret key),
+     - `BUNDLE_ID_PREFIX` — anything reverse-domain-ish that's yours, e.g. `com.yourname`. The app becomes `com.yourname.HealthSync`. Pick once; changing it later means a "new" app on the phone,
+     - `DEVELOPMENT_TEAM` — your Team ID. Easiest way to find it: open the project in Xcode, pick your Apple ID under Signing & Capabilities → Team, then run `xcodebuild -showBuildSettings | grep DEVELOPMENT_TEAM`.
+   - `cp scripts/local.env.example scripts/local.env` and fill in your iPhone's IDs (`xcrun devicectl list devices`).
 3. **Build**: `brew install xcodegen && xcodegen && open HealthSync.xcodeproj`, then run on the phone.
 4. **On the iPhone**: Settings → General → VPN & Device Management → trust your Apple ID. Turn on Developer Mode if asked. Open the app → **Connect Apple Health**.
 
@@ -44,7 +49,7 @@ Free signing lasts 7 days. `scripts/resign-and-install.sh` checks how long the c
 
 - Log: `~/Library/Logs/HealthSync-resign.log` (failures also pop a macOS notification)
 - Force a renewal: `FORCE_RENEW=1 scripts/resign-and-install.sh`
-- Turn it off: `launchctl bootout gui/$(id -u)/com.vishalkotak.healthsync.resign`
+- Turn it off: `launchctl bootout gui/$(id -u)/local.healthsync.resign`
 
 It needs the Mac to be on (or wake up) and the phone reachable at least once in each 60-hour window.
 
@@ -95,6 +100,10 @@ Before pushing this to GitHub I went through it from an attacker's point of view
 select type, max(end_date) as latest_recorded, max(uploaded_at) as latest_upload, count(*)
 from health_samples group by type order by latest_upload desc;
 ```
+
+## License
+
+MIT — see [LICENSE](LICENSE). This applies to the `apple-health-sync/` folder only.
 
 ## If I ever pay for the developer account
 
