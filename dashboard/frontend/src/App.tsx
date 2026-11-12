@@ -99,7 +99,7 @@ export function App() {
         <div className="toolbar">
           <h2 className="page-title">{TABS.find((t) => t.id === tab)!.label}</h2>
           {tab === "overview" ? (
-            <span className="muted">Today and the last 7 days</span>
+            <span className="muted">Today</span>
           ) : (
             <RangePicker key={`${range.preset}-${range.from}-${range.to}`} range={range} today={today} onChange={setRange} />
           )}

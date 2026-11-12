@@ -1,5 +1,5 @@
-import { useApi, type SparkPoint, type Summary } from "../api";
-import { C, Sparkline } from "../components/charts";
+import { useApi, type Summary } from "../api";
+import { C } from "../components/charts";
 import { ErrorState, EmptyState } from "../components/ui";
 import { DASH, formatDate, formatMinutes, formatNumber, formatValue } from "../lib/format";
 import type { Tab } from "../tabs";
@@ -9,9 +9,7 @@ function OverviewCard({
   value,
   unit,
   detail,
-  spark,
   color,
-  kind,
   tab,
   onOpen,
   badge,
@@ -20,9 +18,7 @@ function OverviewCard({
   value: string;
   unit?: string;
   detail: string;
-  spark: SparkPoint[];
   color: string;
-  kind?: "line" | "bar";
   tab: Tab;
   onOpen: (t: Tab) => void;
   badge?: string;
@@ -45,13 +41,12 @@ function OverviewCard({
         {unit && value !== DASH && <span className="ov-unit">{unit}</span>}
       </div>
       <div className="ov-detail">{detail}</div>
-      <Sparkline points={spark} color={color} kind={kind} />
     </button>
   );
 }
 
 export function Overview({ onOpen }: { onOpen: (t: Tab) => void }) {
-  const s = useApi<Summary>("/api/summary?days=7");
+  const s = useApi<Summary>("/api/summary?days=1");
   if (s.error) return <ErrorState message={s.error} />;
   if (!s.data)
     return (
@@ -63,25 +58,30 @@ export function Overview({ onOpen }: { onOpen: (t: Tab) => void }) {
     );
 
   const c = s.data.cards;
+  const today = s.data.today;
   const nothing =
     c.steps.spark.every((p) => p.value == null) &&
     c.resting_hr.latest == null &&
     c.sleep.last_night == null &&
     c.weight.latest == null;
-  const last = c.sleep.last_night;
-  const avg7 = (v: number | null, unit: string) => (v == null ? "No 7-day average yet" : `7-day avg ${formatValue(v, unit)}`);
+
+  // Today only: a reading from an earlier day shows as "—", with when it was last seen.
+  const todays = (v: number | null, d: string | null) => (d === today ? v : null);
+  const when = (d: string) => formatDate(d, d.slice(0, 4) !== today.slice(0, 4)); // year only if not this year
+  const notToday = (v: number | null, d: string | null, unit: string, verb = "Last reading") =>
+    v == null || d == null ? "No readings yet" : `None today · ${verb.toLowerCase()} ${formatValue(v, unit)} on ${when(d)}`;
+  const sleepNight = c.sleep.last_night;
+  const last = sleepNight?.night === today ? sleepNight : null;
 
   return (
     <>
       {nothing && <EmptyState />}
       <div className="ov-grid">
         <OverviewCard
-          title="Steps today"
+          title="Steps"
           value={formatNumber(c.steps.today, 0)}
-          detail={avg7(c.steps.average, "steps")}
-          spark={c.steps.spark}
+          detail="So far today"
           color={C.blue}
-          kind="bar"
           tab="activity"
           onOpen={onOpen}
           badge="≈ approx."
@@ -90,30 +90,30 @@ export function Overview({ onOpen }: { onOpen: (t: Tab) => void }) {
           title="Active energy"
           value={formatNumber(c.active_energy.today, 0)}
           unit="kcal"
-          detail={avg7(c.active_energy.average, "kcal")}
-          spark={c.active_energy.spark}
+          detail={c.active_energy.today == null ? "Nothing recorded today" : "So far today"}
           color={C.orange}
-          kind="bar"
           tab="activity"
           onOpen={onOpen}
           badge="≈ approx."
         />
         <OverviewCard
           title="Resting heart rate"
-          value={formatNumber(c.resting_hr.latest, 0)}
+          value={formatNumber(todays(c.resting_hr.latest, c.resting_hr.latest_date), 0)}
           unit="bpm"
-          detail={`${c.resting_hr.latest_date ? formatDate(c.resting_hr.latest_date) + " · " : ""}${avg7(c.resting_hr.average, "bpm")}`}
-          spark={c.resting_hr.spark}
+          detail={
+            c.resting_hr.latest_date === today
+              ? "Today"
+              : notToday(c.resting_hr.latest, c.resting_hr.latest_date, "bpm")
+          }
           color={C.red}
           tab="heart"
           onOpen={onOpen}
         />
         <OverviewCard
           title="Heart rate variability"
-          value={formatNumber(c.hrv.latest, 0)}
+          value={formatNumber(todays(c.hrv.latest, c.hrv.latest_date), 0)}
           unit="ms"
-          detail={`${c.hrv.latest_date ? formatDate(c.hrv.latest_date) + " · " : ""}${avg7(c.hrv.average, "ms")}`}
-          spark={c.hrv.spark}
+          detail={c.hrv.latest_date === today ? "Today" : notToday(c.hrv.latest, c.hrv.latest_date, "ms")}
           color={C.violet}
           tab="heart"
           onOpen={onOpen}
@@ -124,31 +124,30 @@ export function Overview({ onOpen }: { onOpen: (t: Tab) => void }) {
           detail={
             last
               ? last.staged
-                ? `Deep ${formatMinutes(last.deep_min)} · REM ${formatMinutes(last.rem_min)} · ${formatDate(last.night)}`
-                : `No stage data · ${formatDate(last.night)}`
-              : "No sleep recorded yet"
+                ? `Deep ${formatMinutes(last.deep_min)} · REM ${formatMinutes(last.rem_min)}`
+                : "No stage data"
+              : sleepNight
+                ? `Not recorded last night · last on ${when(sleepNight.night)}`
+                : "No sleep recorded yet"
           }
-          spark={c.sleep.spark.map((p) => ({ ...p, value: p.value == null ? null : p.value / 60 }))}
           color={C.core}
-          kind="bar"
           tab="sleep"
           onOpen={onOpen}
         />
         <OverviewCard
           title="Weight"
-          value={formatNumber(c.weight.latest, 1)}
+          value={formatNumber(todays(c.weight.latest, c.weight.latest_date), 1)}
           unit="kg"
-          detail={c.weight.latest_date ? `Weighed ${formatDate(c.weight.latest_date, true)}` : "No weigh-ins yet"}
-          spark={c.weight.spark}
+          detail={
+            c.weight.latest_date === today
+              ? "Weighed today"
+              : notToday(c.weight.latest, c.weight.latest_date, "kg", "Last weighed")
+          }
           color={C.aqua}
           tab="body"
           onOpen={onOpen}
         />
       </div>
-      <p className="footnote">
-        Sparklines show the last 30 days. Step and energy totals are approximate: the iPhone and Apple Watch both
-        record them and their samples are de-duplicated by estimate.
-      </p>
     </>
   );
 }
