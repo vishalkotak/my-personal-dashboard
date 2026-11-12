@@ -12,7 +12,8 @@ from app.sources import MemorySource
 
 from .test_dedupe import LA, la, s
 
-SETTINGS = load_settings({"DEMO": "1", "TZ_NAME": "America/Los_Angeles"})
+# Pin "now" so the demo data and "today" don't depend on when the tests run.
+SETTINGS = load_settings({"DEMO": "1", "TZ_NAME": "America/Los_Angeles", "DEMO_NOW": "2026-11-11T18:00:00-08:00"})
 
 
 @pytest.fixture(scope="module")
@@ -85,7 +86,7 @@ def test_daily_accepts_full_hk_identifier(demo_client):
 
 
 def test_three_year_range_is_allowed(demo_client):
-    to = date.today() - timedelta(days=1)
+    to = date(2026, 11, 10)
     frm = to - timedelta(days=MAX_RANGE_DAYS - 1)
     assert demo_client.get(f"/api/sleep?from={frm}&to={to}").status_code == 200
 

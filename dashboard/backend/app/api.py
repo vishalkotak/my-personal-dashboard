@@ -54,9 +54,9 @@ def build_source(settings: Settings) -> Source:
 
         log.info("DEMO=1: serving synthetic data")
         return MemorySource(
-            generate(tz=settings.tz),
+            generate(now=settings.demo_now, tz=settings.tz),
             settings,
-            last_upload=datetime.now(timezone.utc) - timedelta(minutes=7),
+            last_upload=(settings.demo_now or datetime.now(timezone.utc)) - timedelta(minutes=7),
             units=UNITS,
         )
     return PostgresSource(settings)
@@ -118,7 +118,7 @@ def create_app(
         from_: Annotated[date | None, Query(alias="from", description="Local date, inclusive")] = None,
         to: Annotated[date | None, Query(description="Local date, inclusive")] = None,
     ) -> tuple[date, date]:
-        today = service.today_local(settings.tz)
+        today = service.today_local(settings.tz, settings.demo_now)
         to = to or today
         from_ = from_ or (to - timedelta(days=29))
         if from_ > to:
@@ -159,7 +159,7 @@ def create_app(
                 out[st.type] = (info, st)
             return out
 
-        return cached(request, ("type_stats", service.today_local(settings.tz)), load)
+        return cached(request, ("type_stats", service.today_local(settings.tz, settings.demo_now)), load)
 
     @app.get("/api/types")
     def types(request: Request, source: SourceDep) -> dict[str, Any]:
@@ -203,8 +203,8 @@ def create_app(
         source: SourceDep,
         days: Annotated[int, Query(ge=1, le=90)] = 7,
     ) -> dict[str, Any]:
-        today = service.today_local(settings.tz)
-        return cached(request, ("summary", days, today), lambda: service.summary(source, days, settings.tz))
+        today = service.today_local(settings.tz, settings.demo_now)
+        return cached(request, ("summary", days, today), lambda: service.summary(source, days, settings.tz, now=settings.demo_now))
 
     @app.get("/api/daily")
     def daily(

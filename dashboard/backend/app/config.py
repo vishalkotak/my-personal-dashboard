@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import uuid
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -23,6 +24,7 @@ class Settings:
     port: int
     statement_timeout_ms: int
     types_path: Path | None = None  # None -> apple-health-sync/HealthSync/HealthTypes.json
+    demo_now: datetime | None = None  # DEMO_NOW: pin "now" in demo mode (screenshots, tests)
 
     @property
     def tz(self) -> ZoneInfo:
@@ -56,8 +58,18 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
         except ValueError as e:
             raise SystemExit("HEALTH_USER_ID must be a UUID (the ID shown in the iPhone app)") from e
 
+    demo_now = None
+    if demo and env.get("DEMO_NOW"):
+        try:
+            demo_now = datetime.fromisoformat(env["DEMO_NOW"])
+        except ValueError as e:
+            raise SystemExit("DEMO_NOW must be an ISO timestamp, e.g. 2026-11-11T18:00:00-08:00") from e
+        if demo_now.tzinfo is None:
+            raise SystemExit("DEMO_NOW needs a UTC offset, e.g. 2026-11-11T18:00:00-08:00")
+
     return Settings(
         demo=demo,
+        demo_now=demo_now,
         database_url=database_url,
         tz_name=tz_name,
         user_id=user_id,

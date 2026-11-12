@@ -25,3 +25,11 @@ def test_main_binds_loopback_only():
     from app import __main__ as main
 
     assert main.HOST == "127.0.0.1"
+
+
+def test_demo_now():
+    s = load_settings({"DEMO": "1", "DEMO_NOW": "2026-11-11T18:00:00-08:00"})
+    assert s.demo_now.isoformat() == "2026-11-11T18:00:00-08:00"
+    assert load_settings({"DEMO_NOW": "2026-11-11T18:00:00-08:00"}).demo_now is None  # demo only
+    with pytest.raises(SystemExit):
+        load_settings({"DEMO": "1", "DEMO_NOW": "2026-11-11T18:00:00"})
