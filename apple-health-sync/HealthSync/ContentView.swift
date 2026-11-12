@@ -27,12 +27,17 @@ struct ContentView: View {
                 }
 
                 Section {
-                    if connected {
+                    if !connected {
+                        Button("Connect Apple Health") { Task { await connect() } }
+                    } else {
+                        if engine.needsAuthorization {
+                            Button("Allow new health data") { Task { await connect() } }
+                        }
                         Button("Sync now") { Task { await engine.syncAll() } }
                             .disabled(engine.isSyncing || engine.accountAvailable != true)
-                    } else {
-                        Button("Connect Apple Health") { Task { await connect() } }
                     }
+                } footer: {
+                    Text("Syncs \(HealthTypes.all.count) kinds of Apple Health data. You choose which ones in the permission sheet.")
                 }
 
                 if let id = engine.accountID {
@@ -50,6 +55,11 @@ struct ContentView: View {
             .navigationTitle("Health Sync")
             .task {
                 await engine.refreshAccount()
+                await engine.refreshAuthorizationStatus()
+                #if DEBUG
+                // Test hook: `-HSRequestAuthOnLaunch` makes HealthKit validate every requested type at launch.
+                if ProcessInfo.processInfo.arguments.contains("-HSRequestAuthOnLaunch") { await connect() }
+                #endif
                 if connected { await engine.syncAll() }   // catch up whenever the app opens
             }
         }

@@ -2,13 +2,14 @@
 
 A small personal iPhone app that copies my Apple Health data into my own database, quietly, in the background.
 
-I wanted my health data (steps, workouts, heart rate, HRV, sleep, weight, blood pressure, SpO₂, temperature) somewhere I control and can query, without paying a subscription and without the data passing through anyone else's servers. This is the result.
+I wanted all my health data (steps, workouts, heart, sleep, nutrition, mobility, symptoms, vitals and the rest) somewhere I control and can query, without paying a subscription and without the data passing through anyone else's servers. This is the result.
 
 ---
 
 ## What it does
 
-- Reads 13 kinds of Apple Health data (read-only — it never writes to Health).
+- Reads every kind of Apple Health data the iOS SDK exposes as samples: 189 types (119 measurements, 69 categories, plus workouts). Read-only — it never writes to Health.
+- The list lives in `HealthSync/HealthTypes.json`, generated from Apple's SDK by `scripts/generate-type-catalog.swift`, with one fixed unit per type and whether it adds up (steps) or averages (heart rate). The dashboard reads the same file. Not included yet: GPS workout routes, ECGs, hearing tests and clinical records, which each need their own code.
 - Uploads new samples to a Supabase Postgres table as they're recorded. iOS wakes the app in the background when Health gets new data; opening the app also catches up.
 - Mirrors deletions too: delete a sample in Health and it disappears from the database on the next sync.
 - Picks up exactly where it left off. If an upload fails or the phone is locked, nothing is lost — it just tries again next time.
@@ -63,7 +64,7 @@ It needs the Mac to be on (or wake up) and the phone reachable at least once in 
 | On the server | Supabase encrypts its disks (AES-256). |
 | On the phone | The app never stores health data itself. Its bookmarks use iOS Data Protection; the login session is in the Keychain. |
 | Logs | Health values are never logged. |
-| Least data | Read-only Health access, a fixed list of types, and no metadata uploaded (see `sanitizedMetadata` in `SampleMapper.swift`). |
+| Least data | Read-only Health access, no metadata uploaded (see `sanitizedMetadata` in `SampleMapper.swift`), and you choose exactly which types to allow in iOS's permission sheet. |
 
 One honest caveat: unlike the CloudKit version, this isn't end-to-end encrypted. Supabase (and anyone with my dashboard login) can read the rows. Protect the Supabase account with a strong password and 2FA.
 

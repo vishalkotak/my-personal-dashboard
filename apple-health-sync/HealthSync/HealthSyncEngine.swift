@@ -29,6 +29,7 @@ final class HealthSyncEngine {
     // Never log health values. Only type identifiers and error descriptions are marked public.
     private nonisolated static let log = Logger(subsystem: "HealthSync", category: "sync")
     private static let batchSize = 200
+    private static let maxConcurrentTypes = 4
 
     private init() {
         // Only relevant for the CloudKit backend; harmless otherwise.
@@ -40,8 +41,18 @@ final class HealthSyncEngine {
         }
     }
 
+    /// True when iOS still has unanswered permission prompts — e.g. after an update adds new types.
+    private(set) var needsAuthorization = false
+    private var readTypes: Set<HKObjectType> { Set(HealthTypes.all.map { $0 as HKObjectType }) }
+
     func requestAuthorization() async throws {
-        try await store.requestAuthorization(toShare: [], read: Set(HealthTypes.all.map { $0 as HKObjectType }))
+        try await store.requestAuthorization(toShare: [], read: readTypes)
+        needsAuthorization = false
+    }
+
+    func refreshAuthorizationStatus() async {
+        let status = try? await store.statusForAuthorizationRequest(toShare: [], read: readTypes)
+        needsAuthorization = (status == .shouldRequest)
     }
 
     /// Checks whether an account is available and detects a switch to a different account.
@@ -88,10 +99,17 @@ final class HealthSyncEngine {
         }
     }
 
+    /// Syncs every type, a few at a time. With ~190 types, starting them all at once would
+    /// open ~190 HealthKit queries and network requests simultaneously.
     func syncAll() async {
         await withTaskGroup(of: Void.self) { group in
-            for type in HealthTypes.all {
+            var pending = HealthTypes.all.makeIterator()
+            for _ in 0..<Self.maxConcurrentTypes {
+                guard let type = pending.next() else { break }
                 group.addTask { await self.sync(type) }
+            }
+            while await group.next() != nil {
+                if let type = pending.next() { group.addTask { await self.sync(type) } }
             }
         }
     }
