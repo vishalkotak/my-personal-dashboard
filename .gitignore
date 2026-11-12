@@ -1,44 +1,35 @@
-# Environment and secrets
+# Secrets: never commit real connection strings or keys
 .env
-.whoop_token.json
-backend/.env
-backend/.whoop_token.json
+.env.*
+!.env.example
 
-# Personal health data
+# Personal health data / local databases
 *.db
-health_data.db
-backend/health_data.db
-whoop_health_data.json
-backend/whoop_health_data.json
+*.sqlite
+*.sqlite3
 
-# Logs
+# Logs and process IDs
 logs/
 *.log
-sync.log
-
-# Process IDs
 .pids/
 
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
 .venv/
+venv/
+.pytest_cache/
 
 # Node
-frontend/node_modules/
-frontend/dist/
-frontend/.vite/
+node_modules/
+dist/
+.vite/
+coverage/
 
 # IDE
 .vscode/
 .idea/
 *.swp
-*.swo
 
 # Claude
 .claude/
@@ -46,6 +37,3 @@ frontend/.vite/
 # OS
 .DS_Store
 Thumbs.db
-
-# LaunchAgent (contains hardcoded paths)
-# Keep the template but ignore installed version
