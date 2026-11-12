@@ -1,6 +1,6 @@
 import { rangeQuery, useApi, type CumulativePoint, type Daily } from "../api";
 import { C, DailyBars, TableToggle } from "../components/charts";
-import { Card, Load, Notice, Stat } from "../components/ui";
+import { Card, Load, Stat } from "../components/ui";
 import { average, formatDate, formatValue } from "../lib/format";
 import type { DateRange } from "../lib/range";
 
@@ -86,12 +86,6 @@ function ActivityChart({
 export function Activity({ range }: { range: DateRange }) {
   return (
     <>
-      <Notice>
-        These totals are approximate. Your iPhone and Apple Watch both count steps, distance and energy, and the
-        sync app doesn't yet record which device each sample came from. Where samples overlap, the dashboard counts
-        that stretch of time once (using whichever device saw more), instead of adding them together. Hover a bar to
-        see the raw, double-counted sum for comparison.
-      </Notice>
       <div className="grid">
         <ActivityChart range={range} type="steps" title="Steps" color={C.blue} unit="steps" label="Steps" />
         <ActivityChart range={range} type="distance" title="Walking + running distance" color={C.aqua} unit="km" scale={0.001} label="Distance" />
