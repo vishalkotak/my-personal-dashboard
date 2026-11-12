@@ -1,0 +1,44 @@
+# Generate the Xcode project with:  brew install xcodegen && xcodegen
+# Requires Config/Secrets.xcconfig (copy from Config/Secrets.example.xcconfig).
+name: HealthSync
+options:
+  bundleIdPrefix: com.vishalkotak
+  deploymentTarget:
+    iOS: "17.0"
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    exactVersion: 2.55.6        # pinned; transitive pins live in the committed Package.resolved
+targets:
+  HealthSync:
+    type: application
+    platform: iOS
+    sources: [HealthSync]
+    configFiles:
+      Debug: Config/Secrets.xcconfig
+      Release: Config/Secrets.xcconfig
+    dependencies:
+      - package: Supabase
+        product: Supabase
+    settings:
+      base:
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        # DEVELOPMENT_TEAM comes from Config/Secrets.xcconfig
+    info:
+      path: HealthSync/Info.plist
+      properties:
+        UILaunchScreen: {}
+        SupabaseURL: $(SUPABASE_URL)
+        SupabasePublishableKey: $(SUPABASE_PUBLISHABLE_KEY)
+        NSHealthShareUsageDescription: >-
+          HealthSync reads your activity, heart, sleep and vitals data so it can
+          back it up to your private, access-controlled database.
+    entitlements:
+      path: HealthSync/HealthSync.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.background-delivery: true
+        # CloudKit backend (paid account only) — uncomment both and switch Backends.current:
+        # com.apple.developer.icloud-container-identifiers: [iCloud.com.vishalkotak.HealthSync]
+        # com.apple.developer.icloud-services: [CloudKit]
