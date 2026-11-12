@@ -1,0 +1,1445 @@
+[
+  {
+    "aggregation" : "average",
+    "group" : "Body Measurements",
+    "id" : "HKQuantityTypeIdentifierAppleSleepingWristTemperature",
+    "kind" : "quantity",
+    "name" : "Sleeping Wrist Temperature",
+    "unit" : "degC"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Body Measurements",
+    "id" : "HKQuantityTypeIdentifierBodyFatPercentage",
+    "kind" : "quantity",
+    "name" : "Body Fat Percentage",
+    "unit" : "%"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Body Measurements",
+    "id" : "HKQuantityTypeIdentifierBodyMass",
+    "kind" : "quantity",
+    "name" : "Body Mass",
+    "unit" : "kg"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Body Measurements",
+    "id" : "HKQuantityTypeIdentifierBodyMassIndex",
+    "kind" : "quantity",
+    "name" : "Body Mass Index",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Body Measurements",
+    "id" : "HKQuantityTypeIdentifierElectrodermalActivity",
+    "kind" : "quantity",
+    "name" : "Electrodermal Activity",
+    "unit" : "S"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Body Measurements",
+    "id" : "HKQuantityTypeIdentifierHeight",
+    "kind" : "quantity",
+    "name" : "Height",
+    "unit" : "cm"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Body Measurements",
+    "id" : "HKQuantityTypeIdentifierLeanBodyMass",
+    "kind" : "quantity",
+    "name" : "Lean Body Mass",
+    "unit" : "kg"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Body Measurements",
+    "id" : "HKQuantityTypeIdentifierWaistCircumference",
+    "kind" : "quantity",
+    "name" : "Waist Circumference",
+    "unit" : "cm"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierActiveEnergyBurned",
+    "kind" : "quantity",
+    "name" : "Active Energy Burned",
+    "unit" : "kcal"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierAppleExerciseTime",
+    "kind" : "quantity",
+    "name" : "Exercise Time",
+    "unit" : "min"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierAppleMoveTime",
+    "kind" : "quantity",
+    "name" : "Move Time",
+    "unit" : "min"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierAppleStandTime",
+    "kind" : "quantity",
+    "name" : "Stand Time",
+    "unit" : "min"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierBasalEnergyBurned",
+    "kind" : "quantity",
+    "name" : "Basal Energy Burned",
+    "unit" : "kcal"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierCrossCountrySkiingSpeed",
+    "kind" : "quantity",
+    "name" : "Cross Country Skiing Speed",
+    "unit" : "m/s"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierCyclingCadence",
+    "kind" : "quantity",
+    "name" : "Cycling Cadence",
+    "unit" : "count/min"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierCyclingFunctionalThresholdPower",
+    "kind" : "quantity",
+    "name" : "Cycling Functional Threshold Power",
+    "unit" : "W"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierCyclingPower",
+    "kind" : "quantity",
+    "name" : "Cycling Power",
+    "unit" : "W"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierCyclingSpeed",
+    "kind" : "quantity",
+    "name" : "Cycling Speed",
+    "unit" : "m/s"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistanceCrossCountrySkiing",
+    "kind" : "quantity",
+    "name" : "Distance Cross Country Skiing",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistanceCycling",
+    "kind" : "quantity",
+    "name" : "Distance Cycling",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistanceDownhillSnowSports",
+    "kind" : "quantity",
+    "name" : "Distance Downhill Snow Sports",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistancePaddleSports",
+    "kind" : "quantity",
+    "name" : "Distance Paddle Sports",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistanceRowing",
+    "kind" : "quantity",
+    "name" : "Distance Rowing",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistanceSkatingSports",
+    "kind" : "quantity",
+    "name" : "Distance Skating Sports",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistanceSwimming",
+    "kind" : "quantity",
+    "name" : "Distance Swimming",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistanceWalkingRunning",
+    "kind" : "quantity",
+    "name" : "Distance Walking Running",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierDistanceWheelchair",
+    "kind" : "quantity",
+    "name" : "Distance Wheelchair",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierEstimatedWorkoutEffortScore",
+    "kind" : "quantity",
+    "name" : "Estimated Workout Effort Score",
+    "unit" : "appleEffortScore"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierFlightsClimbed",
+    "kind" : "quantity",
+    "name" : "Flights Climbed",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierPaddleSportsSpeed",
+    "kind" : "quantity",
+    "name" : "Paddle Sports Speed",
+    "unit" : "m/s"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierPhysicalEffort",
+    "kind" : "quantity",
+    "name" : "Physical Effort",
+    "unit" : "kcal/(kg*hr)"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierPushCount",
+    "kind" : "quantity",
+    "name" : "Push Count",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierRowingSpeed",
+    "kind" : "quantity",
+    "name" : "Rowing Speed",
+    "unit" : "m/s"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierRunningPower",
+    "kind" : "quantity",
+    "name" : "Running Power",
+    "unit" : "W"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierRunningSpeed",
+    "kind" : "quantity",
+    "name" : "Running Speed",
+    "unit" : "m/s"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierStepCount",
+    "kind" : "quantity",
+    "name" : "Step Count",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierSwimmingStrokeCount",
+    "kind" : "quantity",
+    "name" : "Swimming Stroke Count",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierUnderwaterDepth",
+    "kind" : "quantity",
+    "name" : "Underwater Depth",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Fitness",
+    "id" : "HKQuantityTypeIdentifierWorkoutEffortScore",
+    "kind" : "quantity",
+    "name" : "Workout Effort Score",
+    "unit" : "appleEffortScore"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Hearing Health",
+    "id" : "HKQuantityTypeIdentifierEnvironmentalAudioExposure",
+    "kind" : "quantity",
+    "name" : "Environmental Audio Exposure",
+    "unit" : "dBASPL"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Hearing Health",
+    "id" : "HKQuantityTypeIdentifierEnvironmentalSoundReduction",
+    "kind" : "quantity",
+    "name" : "Environmental Sound Reduction",
+    "unit" : "dBASPL"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Hearing Health",
+    "id" : "HKQuantityTypeIdentifierHeadphoneAudioExposure",
+    "kind" : "quantity",
+    "name" : "Headphone Audio Exposure",
+    "unit" : "dBASPL"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Heart",
+    "id" : "HKQuantityTypeIdentifierAtrialFibrillationBurden",
+    "kind" : "quantity",
+    "name" : "Atrial Fibrillation Burden",
+    "unit" : "%"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Heart",
+    "id" : "HKQuantityTypeIdentifierHeartRate",
+    "kind" : "quantity",
+    "name" : "Heart Rate",
+    "unit" : "count/min"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Heart",
+    "id" : "HKQuantityTypeIdentifierHeartRateRecoveryOneMinute",
+    "kind" : "quantity",
+    "name" : "Heart Rate Recovery One Minute",
+    "unit" : "count/min"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Heart",
+    "id" : "HKQuantityTypeIdentifierHeartRateVariabilitySDNN",
+    "kind" : "quantity",
+    "name" : "Heart Rate Variability SDNN",
+    "unit" : "ms"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Heart",
+    "id" : "HKQuantityTypeIdentifierPeripheralPerfusionIndex",
+    "kind" : "quantity",
+    "name" : "Peripheral Perfusion Index",
+    "unit" : "%"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Heart",
+    "id" : "HKQuantityTypeIdentifierRestingHeartRate",
+    "kind" : "quantity",
+    "name" : "Resting Heart Rate",
+    "unit" : "count/min"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Heart",
+    "id" : "HKQuantityTypeIdentifierVO2Max",
+    "kind" : "quantity",
+    "name" : "VO2 Max",
+    "unit" : "ml/(kg*min)"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Heart",
+    "id" : "HKQuantityTypeIdentifierWalkingHeartRateAverage",
+    "kind" : "quantity",
+    "name" : "Walking Heart Rate Average",
+    "unit" : "count/min"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierAppleWalkingSteadiness",
+    "kind" : "quantity",
+    "name" : "Walking Steadiness",
+    "unit" : "%"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierRunningGroundContactTime",
+    "kind" : "quantity",
+    "name" : "Running Ground Contact Time",
+    "unit" : "ms"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierRunningStrideLength",
+    "kind" : "quantity",
+    "name" : "Running Stride Length",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierRunningVerticalOscillation",
+    "kind" : "quantity",
+    "name" : "Running Vertical Oscillation",
+    "unit" : "cm"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierSixMinuteWalkTestDistance",
+    "kind" : "quantity",
+    "name" : "Six Minute Walk Test Distance",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierStairAscentSpeed",
+    "kind" : "quantity",
+    "name" : "Stair Ascent Speed",
+    "unit" : "m/s"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierStairDescentSpeed",
+    "kind" : "quantity",
+    "name" : "Stair Descent Speed",
+    "unit" : "m/s"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierWalkingAsymmetryPercentage",
+    "kind" : "quantity",
+    "name" : "Walking Asymmetry Percentage",
+    "unit" : "%"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierWalkingDoubleSupportPercentage",
+    "kind" : "quantity",
+    "name" : "Walking Double Support Percentage",
+    "unit" : "%"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierWalkingSpeed",
+    "kind" : "quantity",
+    "name" : "Walking Speed",
+    "unit" : "m/s"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Mobility",
+    "id" : "HKQuantityTypeIdentifierWalkingStepLength",
+    "kind" : "quantity",
+    "name" : "Walking Step Length",
+    "unit" : "m"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryBiotin",
+    "kind" : "quantity",
+    "name" : "Dietary Biotin",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryCaffeine",
+    "kind" : "quantity",
+    "name" : "Dietary Caffeine",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryCalcium",
+    "kind" : "quantity",
+    "name" : "Dietary Calcium",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryCarbohydrates",
+    "kind" : "quantity",
+    "name" : "Dietary Carbohydrates",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryChloride",
+    "kind" : "quantity",
+    "name" : "Dietary Chloride",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryCholesterol",
+    "kind" : "quantity",
+    "name" : "Dietary Cholesterol",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryChromium",
+    "kind" : "quantity",
+    "name" : "Dietary Chromium",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryCopper",
+    "kind" : "quantity",
+    "name" : "Dietary Copper",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryEnergyConsumed",
+    "kind" : "quantity",
+    "name" : "Dietary Energy Consumed",
+    "unit" : "kcal"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryFatMonounsaturated",
+    "kind" : "quantity",
+    "name" : "Dietary Fat Monounsaturated",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryFatPolyunsaturated",
+    "kind" : "quantity",
+    "name" : "Dietary Fat Polyunsaturated",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryFatSaturated",
+    "kind" : "quantity",
+    "name" : "Dietary Fat Saturated",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryFatTotal",
+    "kind" : "quantity",
+    "name" : "Dietary Fat Total",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryFiber",
+    "kind" : "quantity",
+    "name" : "Dietary Fiber",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryFolate",
+    "kind" : "quantity",
+    "name" : "Dietary Folate",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryIodine",
+    "kind" : "quantity",
+    "name" : "Dietary Iodine",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryIron",
+    "kind" : "quantity",
+    "name" : "Dietary Iron",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryMagnesium",
+    "kind" : "quantity",
+    "name" : "Dietary Magnesium",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryManganese",
+    "kind" : "quantity",
+    "name" : "Dietary Manganese",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryMolybdenum",
+    "kind" : "quantity",
+    "name" : "Dietary Molybdenum",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryNiacin",
+    "kind" : "quantity",
+    "name" : "Dietary Niacin",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryPantothenicAcid",
+    "kind" : "quantity",
+    "name" : "Dietary Pantothenic Acid",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryPhosphorus",
+    "kind" : "quantity",
+    "name" : "Dietary Phosphorus",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryPotassium",
+    "kind" : "quantity",
+    "name" : "Dietary Potassium",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryProtein",
+    "kind" : "quantity",
+    "name" : "Dietary Protein",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryRiboflavin",
+    "kind" : "quantity",
+    "name" : "Dietary Riboflavin",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietarySelenium",
+    "kind" : "quantity",
+    "name" : "Dietary Selenium",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietarySodium",
+    "kind" : "quantity",
+    "name" : "Dietary Sodium",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietarySugar",
+    "kind" : "quantity",
+    "name" : "Dietary Sugar",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryThiamin",
+    "kind" : "quantity",
+    "name" : "Dietary Thiamin",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryVitaminA",
+    "kind" : "quantity",
+    "name" : "Dietary Vitamin A",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryVitaminB12",
+    "kind" : "quantity",
+    "name" : "Dietary Vitamin B12",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryVitaminB6",
+    "kind" : "quantity",
+    "name" : "Dietary Vitamin B6",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryVitaminC",
+    "kind" : "quantity",
+    "name" : "Dietary Vitamin C",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryVitaminD",
+    "kind" : "quantity",
+    "name" : "Dietary Vitamin D",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryVitaminE",
+    "kind" : "quantity",
+    "name" : "Dietary Vitamin E",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryVitaminK",
+    "kind" : "quantity",
+    "name" : "Dietary Vitamin K",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryWater",
+    "kind" : "quantity",
+    "name" : "Dietary Water",
+    "unit" : "mL"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Nutrition",
+    "id" : "HKQuantityTypeIdentifierDietaryZinc",
+    "kind" : "quantity",
+    "name" : "Dietary Zinc",
+    "unit" : "g"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierBloodAlcoholContent",
+    "kind" : "quantity",
+    "name" : "Blood Alcohol Content",
+    "unit" : "%"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierBloodPressureDiastolic",
+    "kind" : "quantity",
+    "name" : "Blood Pressure Diastolic",
+    "unit" : "mmHg"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierBloodPressureSystolic",
+    "kind" : "quantity",
+    "name" : "Blood Pressure Systolic",
+    "unit" : "mmHg"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierInsulinDelivery",
+    "kind" : "quantity",
+    "name" : "Insulin Delivery",
+    "unit" : "IU"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierNumberOfAlcoholicBeverages",
+    "kind" : "quantity",
+    "name" : "Number Of Alcoholic Beverages",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierNumberOfTimesFallen",
+    "kind" : "quantity",
+    "name" : "Number Of Times Fallen",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierTimeInDaylight",
+    "kind" : "quantity",
+    "name" : "Time In Daylight",
+    "unit" : "min"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierUVExposure",
+    "kind" : "quantity",
+    "name" : "UVExposure",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Other",
+    "id" : "HKQuantityTypeIdentifierWaterTemperature",
+    "kind" : "quantity",
+    "name" : "Water Temperature",
+    "unit" : "degC"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Reproductive Health",
+    "id" : "HKQuantityTypeIdentifierBasalBodyTemperature",
+    "kind" : "quantity",
+    "name" : "Basal Body Temperature",
+    "unit" : "degC"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Respiratory",
+    "id" : "HKQuantityTypeIdentifierAppleSleepingBreathingDisturbances",
+    "kind" : "quantity",
+    "name" : "Sleeping Breathing Disturbances",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Respiratory",
+    "id" : "HKQuantityTypeIdentifierForcedExpiratoryVolume1",
+    "kind" : "quantity",
+    "name" : "Forced Expiratory Volume1",
+    "unit" : "L"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Respiratory",
+    "id" : "HKQuantityTypeIdentifierForcedVitalCapacity",
+    "kind" : "quantity",
+    "name" : "Forced Vital Capacity",
+    "unit" : "L"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Respiratory",
+    "id" : "HKQuantityTypeIdentifierInhalerUsage",
+    "kind" : "quantity",
+    "name" : "Inhaler Usage",
+    "unit" : "count"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Respiratory",
+    "id" : "HKQuantityTypeIdentifierOxygenSaturation",
+    "kind" : "quantity",
+    "name" : "Oxygen Saturation",
+    "unit" : "%"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Respiratory",
+    "id" : "HKQuantityTypeIdentifierPeakExpiratoryFlowRate",
+    "kind" : "quantity",
+    "name" : "Peak Expiratory Flow Rate",
+    "unit" : "L/min"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Respiratory",
+    "id" : "HKQuantityTypeIdentifierRespiratoryRate",
+    "kind" : "quantity",
+    "name" : "Respiratory Rate",
+    "unit" : "count/min"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Vital Signs",
+    "id" : "HKQuantityTypeIdentifierBloodGlucose",
+    "kind" : "quantity",
+    "name" : "Blood Glucose",
+    "unit" : "mg/dL"
+  },
+  {
+    "aggregation" : "average",
+    "group" : "Vital Signs",
+    "id" : "HKQuantityTypeIdentifierBodyTemperature",
+    "kind" : "quantity",
+    "name" : "Body Temperature",
+    "unit" : "degC"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Fitness",
+    "id" : "HKCategoryTypeIdentifierAppleStandHour",
+    "kind" : "category",
+    "name" : "Stand Hour"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Hearing Health",
+    "id" : "HKCategoryTypeIdentifierEnvironmentalAudioExposureEvent",
+    "kind" : "category",
+    "name" : "Environmental Audio Exposure Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Hearing Health",
+    "id" : "HKCategoryTypeIdentifierHeadphoneAudioExposureEvent",
+    "kind" : "category",
+    "name" : "Headphone Audio Exposure Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Heart",
+    "id" : "HKCategoryTypeIdentifierHighHeartRateEvent",
+    "kind" : "category",
+    "name" : "High Heart Rate Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Heart",
+    "id" : "HKCategoryTypeIdentifierHypertensionEvent",
+    "kind" : "category",
+    "name" : "Hypertension Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Heart",
+    "id" : "HKCategoryTypeIdentifierIrregularHeartRhythmEvent",
+    "kind" : "category",
+    "name" : "Irregular Heart Rhythm Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Heart",
+    "id" : "HKCategoryTypeIdentifierLowCardioFitnessEvent",
+    "kind" : "category",
+    "name" : "Low Cardio Fitness Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Heart",
+    "id" : "HKCategoryTypeIdentifierLowHeartRateEvent",
+    "kind" : "category",
+    "name" : "Low Heart Rate Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Mindfulness",
+    "id" : "HKCategoryTypeIdentifierMindfulSession",
+    "kind" : "category",
+    "name" : "Mindful Session"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Mobility",
+    "id" : "HKCategoryTypeIdentifierAppleWalkingSteadinessEvent",
+    "kind" : "category",
+    "name" : "Walking Steadiness Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Other",
+    "id" : "HKCategoryTypeIdentifierHandwashingEvent",
+    "kind" : "category",
+    "name" : "Handwashing Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Other",
+    "id" : "HKCategoryTypeIdentifierToothbrushingEvent",
+    "kind" : "category",
+    "name" : "Toothbrushing Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierBleedingAfterPregnancy",
+    "kind" : "category",
+    "name" : "Bleeding After Pregnancy"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierBleedingDuringPregnancy",
+    "kind" : "category",
+    "name" : "Bleeding During Pregnancy"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierCervicalMucusQuality",
+    "kind" : "category",
+    "name" : "Cervical Mucus Quality"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierContraceptive",
+    "kind" : "category",
+    "name" : "Contraceptive"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierInfrequentMenstrualCycles",
+    "kind" : "category",
+    "name" : "Infrequent Menstrual Cycles"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierIntermenstrualBleeding",
+    "kind" : "category",
+    "name" : "Intermenstrual Bleeding"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierIrregularMenstrualCycles",
+    "kind" : "category",
+    "name" : "Irregular Menstrual Cycles"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierLactation",
+    "kind" : "category",
+    "name" : "Lactation"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierMenstrualFlow",
+    "kind" : "category",
+    "name" : "Menstrual Flow"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierOvulationTestResult",
+    "kind" : "category",
+    "name" : "Ovulation Test Result"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierPersistentIntermenstrualBleeding",
+    "kind" : "category",
+    "name" : "Persistent Intermenstrual Bleeding"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierPregnancy",
+    "kind" : "category",
+    "name" : "Pregnancy"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierPregnancyTestResult",
+    "kind" : "category",
+    "name" : "Pregnancy Test Result"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierProgesteroneTestResult",
+    "kind" : "category",
+    "name" : "Progesterone Test Result"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierProlongedMenstrualPeriods",
+    "kind" : "category",
+    "name" : "Prolonged Menstrual Periods"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Reproductive Health",
+    "id" : "HKCategoryTypeIdentifierSexualActivity",
+    "kind" : "category",
+    "name" : "Sexual Activity"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Respiratory",
+    "id" : "HKCategoryTypeIdentifierSleepApneaEvent",
+    "kind" : "category",
+    "name" : "Sleep Apnea Event"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Sleep",
+    "id" : "HKCategoryTypeIdentifierSleepAnalysis",
+    "kind" : "category",
+    "name" : "Sleep Analysis"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierAbdominalCramps",
+    "kind" : "category",
+    "name" : "Abdominal Cramps"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierAcne",
+    "kind" : "category",
+    "name" : "Acne"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierAppetiteChanges",
+    "kind" : "category",
+    "name" : "Appetite Changes"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierBladderIncontinence",
+    "kind" : "category",
+    "name" : "Bladder Incontinence"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierBloating",
+    "kind" : "category",
+    "name" : "Bloating"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierBreastPain",
+    "kind" : "category",
+    "name" : "Breast Pain"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierChestTightnessOrPain",
+    "kind" : "category",
+    "name" : "Chest Tightness Or Pain"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierChills",
+    "kind" : "category",
+    "name" : "Chills"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierConstipation",
+    "kind" : "category",
+    "name" : "Constipation"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierCoughing",
+    "kind" : "category",
+    "name" : "Coughing"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierDiarrhea",
+    "kind" : "category",
+    "name" : "Diarrhea"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierDizziness",
+    "kind" : "category",
+    "name" : "Dizziness"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierDrySkin",
+    "kind" : "category",
+    "name" : "Dry Skin"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierFainting",
+    "kind" : "category",
+    "name" : "Fainting"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierFatigue",
+    "kind" : "category",
+    "name" : "Fatigue"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierFever",
+    "kind" : "category",
+    "name" : "Fever"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierGeneralizedBodyAche",
+    "kind" : "category",
+    "name" : "Generalized Body Ache"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierHairLoss",
+    "kind" : "category",
+    "name" : "Hair Loss"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierHeadache",
+    "kind" : "category",
+    "name" : "Headache"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierHeartburn",
+    "kind" : "category",
+    "name" : "Heartburn"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierHotFlashes",
+    "kind" : "category",
+    "name" : "Hot Flashes"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierLossOfSmell",
+    "kind" : "category",
+    "name" : "Loss Of Smell"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierLossOfTaste",
+    "kind" : "category",
+    "name" : "Loss Of Taste"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierLowerBackPain",
+    "kind" : "category",
+    "name" : "Lower Back Pain"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierMemoryLapse",
+    "kind" : "category",
+    "name" : "Memory Lapse"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierMoodChanges",
+    "kind" : "category",
+    "name" : "Mood Changes"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierNausea",
+    "kind" : "category",
+    "name" : "Nausea"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierNightSweats",
+    "kind" : "category",
+    "name" : "Night Sweats"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierPelvicPain",
+    "kind" : "category",
+    "name" : "Pelvic Pain"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierRapidPoundingOrFlutteringHeartbeat",
+    "kind" : "category",
+    "name" : "Rapid Pounding Or Fluttering Heartbeat"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierRunnyNose",
+    "kind" : "category",
+    "name" : "Runny Nose"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierShortnessOfBreath",
+    "kind" : "category",
+    "name" : "Shortness Of Breath"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierSinusCongestion",
+    "kind" : "category",
+    "name" : "Sinus Congestion"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierSkippedHeartbeat",
+    "kind" : "category",
+    "name" : "Skipped Heartbeat"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierSleepChanges",
+    "kind" : "category",
+    "name" : "Sleep Changes"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierSoreThroat",
+    "kind" : "category",
+    "name" : "Sore Throat"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierVaginalDryness",
+    "kind" : "category",
+    "name" : "Vaginal Dryness"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierVomiting",
+    "kind" : "category",
+    "name" : "Vomiting"
+  },
+  {
+    "aggregation" : "duration",
+    "group" : "Symptoms",
+    "id" : "HKCategoryTypeIdentifierWheezing",
+    "kind" : "category",
+    "name" : "Wheezing"
+  },
+  {
+    "aggregation" : "sum",
+    "group" : "Fitness",
+    "id" : "HKWorkoutTypeIdentifier",
+    "kind" : "workout",
+    "name" : "Workouts",
+    "unit" : "s"
+  }
+]
