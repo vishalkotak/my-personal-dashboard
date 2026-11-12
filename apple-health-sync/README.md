@@ -2,6 +2,8 @@
 
 A small personal iPhone app that copies my Apple Health data into my own database, quietly, in the background.
 
+To look at the data afterwards, there's a local dashboard in [`../dashboard/`](../dashboard/).
+
 I wanted all my health data (steps, workouts, heart, sleep, nutrition, mobility, symptoms, vitals and the rest) somewhere I control and can query, without paying a subscription and without the data passing through anyone else's servers. This is the result.
 
 ---
