@@ -1,195 +1,122 @@
 # My Personal Dashboard
 
-A personal health dashboard that integrates with WHOOP to display health metrics, recovery scores, sleep analysis, and hypertrophy workout tracking.
+My Apple Health data, in a database I own, with a dashboard that runs on my own Mac.
 
-## Features
+There are two halves to this repo:
 
-### WHOOP Health Tracking
-- **WHOOP Integration**: OAuth2 authentication with WHOOP API
-- **Health Metrics**: HRV, resting heart rate, recovery scores
-- **Sleep Analysis**: Deep sleep, REM, sleep efficiency tracking
-- **Interactive Charts**: Visual trends for all key metrics
-- **Gamification**: Streaks and achievements for motivation
-- **Offline Support**: Local SQLite database for fast access
-- **Auto Sync**: Daily cron job to fetch latest data
+- **[`apple-health-sync/`](./apple-health-sync)**: a small iPhone app that quietly copies Apple Health data (all 189 sample types: activity, heart, sleep, nutrition, symptoms, vitals and the rest) into my own Supabase Postgres database, in the background. It has its own README with the full setup.
+- **[`dashboard/`](./dashboard)**: a local web dashboard to explore that data. It's a small Python API and a React page, both running on `127.0.0.1`, reading the database through a login that can only read.
 
-### Apple Health Sync (iPhone app)
-- **[apple-health-sync/](./apple-health-sync)**: a small iPhone app that copies Apple Health data (activity, heart, sleep, body & vitals) into your own Supabase database, in the background
-- Runs on a free Apple ID; a Mac script keeps it installed past the 7-day free-signing limit
-- Row-Level Security means each account can only ever see its own rows
-- MIT licensed, so anyone can use it. Setup is in its own README.
+I built it because I wanted my health data somewhere I control and can query, without a subscription and without it passing through anyone else's servers. This repo used to hold an older WHOOP dashboard. I don't use WHOOP any more, so I removed that code. It's still in the git history if you want it.
 
-### Hypertrophy Training
-- **4-Day Upper/Lower Split**: Pre-configured workout program
-- **Workout Logging**: Track sets, reps, and weight for each exercise
-- **Progressive Overload**: Auto-suggests weight increases when you hit rep targets
-- **Baseline Weights**: Starting weights calibrated to your body profile
-- **Rest Timer**: Built-in timer between sets
-- **Volume Tracking**: Chart showing total volume over time
+---
 
-## Project Structure
+## Screenshots
 
-```
-my-personal-dashboard/
-├── backend/                 # Python FastAPI backend
-│   ├── api.py              # REST API endpoints
-│   ├── database.py         # SQLite database & repository
-│   ├── models.py           # Pydantic data models
-│   ├── whoop_client.py     # WHOOP API client
-│   ├── sync_service.py     # Data sync service
-│   └── requirements.txt    # Python dependencies
-├── frontend/               # React frontend
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── HealthDashboard.jsx
-│   │   │   ├── HypertrophyDashboard.jsx
-│   │   │   ├── HypertrophyDashboard.css
-│   │   │   ├── FinanceDashboard.jsx
-│   │   │   └── OthersDashboard.jsx
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   └── package.json
-├── apple-health-sync/      # iPhone app: Apple Health → Supabase (MIT)
-├── start.sh                # Start all services
-├── stop.sh                 # Stop all services
-├── setup_sync.sh           # Setup daily sync job
-└── README.md
-```
+These come from demo mode, so the numbers are made up.
 
-## Prerequisites
+| Overview | Overview (dark) |
+|---|---|
+| ![Overview](docs/screenshots/overview-light.png) | ![Overview, dark mode](docs/screenshots/overview-dark.png) |
 
-- Python 3.9+
-- Node.js 18+
-- WHOOP account and API credentials
+| Sleep stages | Activity |
+|---|---|
+| ![Sleep](docs/screenshots/sleep-dark.png) | ![Activity](docs/screenshots/activity-light.png) |
 
-## Setup
+| Heart | Body & Vitals |
+|---|---|
+| ![Heart](docs/screenshots/heart-light.png) | ![Body and vitals](docs/screenshots/body-light.png) |
 
-### 1. Clone the repository
+| Workouts | Explore (any synced type) |
+|---|---|
+| ![Workouts](docs/screenshots/workouts-dark.png) | ![Explore](docs/screenshots/explore-light.png) |
+
+## Try it in two minutes (demo mode)
+
+You don't need a database, an iPhone, or any credentials for this. Demo mode serves about a year of realistic, made-up data. It's generated the same way every time, and it's messy on purpose (overlapping iPhone and Watch samples) so the clean-up logic has something to do.
+
+You need Python 3.11+ and Node 20.19+ (on a Mac: `brew install python@3.12 node`).
 
 ```bash
 git clone https://github.com/vishalkotak/my-personal-dashboard.git
 cd my-personal-dashboard
+DEMO=1 ./dashboard/start.sh      # first run installs dependencies, then prints the URL
+open http://localhost:5173
+./dashboard/stop.sh              # when you're done
 ```
 
-### 2. Configure environment
+Or from `dashboard/`: `make demo`, `make dev`, `make stop`, `make test`.
 
-Create a `.env` file in the root directory:
+## Connecting it to your real data
+
+This assumes the iPhone app is already syncing into your Supabase project (see [its README](./apple-health-sync/README.md)).
+
+1. **Create the read-only login.** Make a strong password with `openssl rand -hex 32`. (`-hex` gives you only 0–9 and a–f, so it never needs URL-escaping. `openssl rand -base64 32` works too, but then you have to URL-encode `/`, `+` and `=`.) Open [`dashboard/sql/readonly_role.sql`](./dashboard/sql/readonly_role.sql), paste the password where it says `REPLACE_WITH_A_STRONG_PASSWORD`, and run the file in Supabase → SQL Editor. Afterwards, close the tab without saving it, so the password doesn't sit in your saved snippets. The script refuses to run while the placeholder is still there.
+2. **Create `dashboard/.env`** from the example. It's gitignored.
+   ```bash
+   cp dashboard/.env.example dashboard/.env
+   ```
+   Set `DATABASE_URL` to the **session pooler** address:
+   ```
+   postgresql://healthsync_reader.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
+   ```
+   You'll find `<project-ref>` and `<region>` under Project Settings → Database → Connection string → *Session pooler*. Two gotchas: on the pooler, the username for a custom role is `<role>.<project-ref>`, not just the role. And the free tier's *direct* connection is IPv6-only, which a lot of home networks can't reach. The pooler works over IPv4.
+   Set `TZ_NAME` to your time zone (default `America/Los_Angeles`). Days and nights are counted in it.
+3. **Start it:** `./dashboard/start.sh`, then open http://localhost:5173. The pill next to the title tells you whether the database is reachable and when the phone last uploaded something.
+
+## How it fits together
+
+```
+iPhone (HealthKit) ──HealthSync app──▶ Supabase Postgres: public.health_samples
+                                              │  (one row per raw HealthKit sample)
+                                              │  read-only login: healthsync_reader
+                                              ▼
+              dashboard/backend  (FastAPI, 127.0.0.1:8000, GET only)
+                 • psycopg 3 pool, every query parameterized, 15 s statement timeout
+                 • per-day aggregation in SQL, in your time zone
+                 • de-duplication of overlapping samples in a small, pure, tested module
+                                              │  /api/...
+                                              ▼
+              dashboard/frontend (React + Vite + Recharts, 127.0.0.1:5173)
+```
+
+- **Backend** (`dashboard/backend/app/`): `api.py` holds the routes, `service.py` shapes the responses, `dedupe.py` has the overlap and sleep logic (no I/O, lots of tests), `queries.py` builds the SQL, `sources.py` is either Postgres or the in-memory demo data, `catalog.py` reads the app's list of types, and `demo.py` makes the synthetic data.
+- **Endpoints:** `/api/health`, `/api/summary?days=7`, `/api/daily?type=steps&from=&to=`, `/api/sleep`, `/api/workouts`, `/api/heart`, `/api/body`, plus `/api/types` and `/api/metric?type=<any HealthKit id>` for the Explore tab. `from`/`to` are local dates, both included, and a range can be at most 3 years. Interactive docs are at http://localhost:8000/api/docs.
+- **Every type, not just the curated ones.** The iPhone app ships its type list as `apple-health-sync/HealthSync/HealthTypes.json` (id, group, name, unit, and whether it's a `sum`, `average` or `duration`). The dashboard reads that same file, and it doubles as the allowlist. Explore lists every type that has rows and charts it the right way: daily totals for things that add up (steps, water, protein, exercise minutes), daily average and range for measurements (VO2 max, respiratory rate), and time plus count for events (mindful sessions, symptoms, broken down by severity). Percent types are stored as fractions (0.97), so they're shown ×100. Nutrition is stored in grams and scaled to mg or µg when the amounts are small. If the catalog file is missing, it falls back to a built-in list plus whatever types it finds in the data.
+- **Sleep** is grouped into nights from noon to noon, and each night is named after the morning it ends on. So a sleep that ends on Tuesday morning is "Tuesday's night", and so is an early nap on Monday evening. An afternoon nap that ends after noon counts towards the following night. That's a known trade-off of the noon cut-off.
+
+## The double-counting caveat (please read)
+
+The iPhone app uploads every raw sample from **every** source (the iPhone itself *and* the Apple Watch), but not which device each one came from. If you walk with both, both record the same steps. A plain `SUM(value)` would count them twice. In the demo data, which copies that pattern, the raw step sum is typically 40–100% too high (median about 70%).
+
+Apple's Health app gets around this by choosing one source at a time from a priority list. Without the source, the dashboard does the next best thing:
+
+- **Steps, distance, energy, and every other type that adds up:** time is cut into small slices at every sample boundary. Within each slice, a sample's value is assumed to be spread evenly over its own duration. When samples overlap, the dashboard takes the **largest** of their rates instead of adding them together. For a single device, that's exactly the plain sum. For two devices, the overlapping stretch is counted once, using whichever device saw more. It can come out a little high compared with Apple (it takes the max rather than a fixed priority), which is why those numbers are labelled **approximate** everywhere, and why hovering a bar shows the raw, double-counted sum next to it.
+- **Sleep:** samples from several sources can overlap too, like the iPhone's coarse "in bed" block and the Watch's stages. Each slice gets the most specific label available: deep > REM > core > awake > asleep (no stage) > in bed. "In bed" is the union of everything.
+- **Blood pressure:** systolic and diastolic readings are paired when they share exactly the same timestamp. Readings without a partner are counted and mentioned, but not plotted.
+
+**The proper fix** is for the iPhone app to also upload `sample.sourceRevision.source.bundleIdentifier`, and then pick one source per type the way Apple does. I haven't changed the app for this yet. It's a small change in `SampleMapper.swift` plus a column.
+
+## Security notes
+
+- **Read-only, three times over.** The database role only has `SELECT` on `health_samples`, with no insert, update, delete or truncate grants, and every one of its sessions defaults to read-only. The backend sets read-only and a statement timeout on each connection as well. And the API only has GET routes, which a test checks.
+- **It can read every row.** The RLS policy for `healthsync_reader` is `using (true)`, so it sees every user's rows in the table, not just yours. For a personal, single-owner Supabase project that's what you want (it even picks up rows from an older anonymous account if the app ever had to start a new one). If you ever share the project, set `HEALTH_USER_ID` in `.env` or tighten the policy.
+- **Local only.** Both servers bind to `127.0.0.1`. The API rejects requests addressed to any other host name (which guards against DNS-rebinding tricks), and CORS only allows the local frontend. There are no CDNs, web fonts or analytics, and nothing in the page talks to anything except the local API.
+- **Inputs are checked.** Types must be in the catalog, dates must parse, and a range can't run backwards or be longer than 3 years. All SQL is parameterized, and error messages never include connection details.
+- **No secrets in git.** `dashboard/.env` and any `*.db` file are gitignored, and only `.env.example` is committed. Dependencies are pinned exactly (`requirements.txt` with the full transitive set, and `package-lock.json`).
+- Tests that run the real SQL, including `readonly_role.sql` on a Supabase-like Postgres where the owner isn't a superuser, are in `dashboard/backend/tests/test_integration_pg.py`. Run them with `make test-integration` (needs Docker).
+
+## Development
 
 ```bash
-cp .env.example .env
+cd dashboard
+make test               # backend unit tests (pytest) + frontend typecheck and tests (vitest)
+make test-integration   # Postgres 17 in Docker: role permissions, and SQL vs Python results
+make build              # production build of the frontend
 ```
 
-Edit `.env` and add your WHOOP API credentials:
-
-```
-WHOOP_CLIENT_ID=your_client_id
-WHOOP_CLIENT_SECRET=your_client_secret
-```
-
-Get credentials from [WHOOP Developer Portal](https://developer.whoop.com).
-
-### 3. Install dependencies
-
-**Backend:**
-```bash
-cd backend
-pip3 install -r requirements.txt
-```
-
-**Frontend:**
-```bash
-cd frontend
-npm install
-```
-
-### 4. Start the application
-
-```bash
-./start.sh
-```
-
-This starts:
-- API server at http://localhost:8000
-- Frontend at http://localhost:5173
-
-### 5. Authenticate with WHOOP
-
-1. Open http://localhost:5173
-2. Click "Connect WHOOP"
-3. Complete OAuth flow
-4. Data will sync automatically
-
-## Usage
-
-### Start/Stop Services
-
-```bash
-./start.sh   # Start API and frontend
-./stop.sh    # Stop all services
-```
-
-### API Endpoints
-
-#### WHOOP Health
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /health` | Health check |
-| `GET /auth/login` | Start OAuth flow |
-| `GET /auth/status` | Check auth status |
-| `GET /summary?days=14` | Get health summary |
-| `GET /recovery` | Get recovery data |
-| `GET /sleep` | Get sleep data |
-| `GET /workouts` | Get workout data |
-| `POST /sync` | Trigger manual sync |
-
-#### Hypertrophy Training
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /gym/templates` | Get workout templates |
-| `GET /gym/templates/{id}` | Get template with exercises |
-| `POST /gym/sessions` | Start a workout session |
-| `GET /gym/sessions/{id}` | Get session details |
-| `PUT /gym/sessions/{id}/complete` | Complete a session |
-| `POST /gym/sessions/{id}/sets` | Log a set |
-| `DELETE /gym/sessions/{id}/sets/{set}` | Delete a set |
-| `GET /gym/exercises/{id}/suggest` | Get weight suggestion |
-| `GET /gym/volume-history` | Get volume trends |
-
-API documentation: http://localhost:8000/docs
-
-### Setup Daily Sync
-
-To automatically sync data daily:
-
-```bash
-./setup_sync.sh
-```
-
-This creates a launchd job (macOS) that runs at 12:30 AM daily.
-
-## Tech Stack
-
-**Backend:**
-- FastAPI (Python web framework)
-- SQLite (local database)
-- WHOOP API v2
-
-**Frontend:**
-- React 18
-- Recharts (interactive charts)
-- Vite (build tool)
-
-## Health Metrics Explained
-
-The dashboard prioritizes metrics based on scientific research:
-
-1. **HRV (Heart Rate Variability)** - Most predictive biomarker for overall health and stress resilience
-2. **Sleep Architecture** - Deep sleep (1.5-2h needed) is critical for physical recovery
-3. **Resting Heart Rate** - Lower RHR indicates better cardiovascular fitness
-4. **Recovery Score** - Composite metric based on HRV, RHR, and sleep
+To regenerate the screenshots, start demo mode with a pinned clock (`DEMO=1 DEMO_NOW=2026-11-11T18:30:00-08:00 ./dashboard/start.sh`) and run `python dashboard/scripts/screenshots.py`. That needs Playwright installed somewhere.
 
 ## License
 
-Private - Personal Use Only, except `apple-health-sync/`, which is MIT licensed (see its LICENSE file).
+MIT, see [LICENSE](LICENSE). It covers the whole repository: the iPhone app and the dashboard. Use it, fork it, make it yours.
