@@ -43,12 +43,18 @@ struct DashboardWebView: NSViewRepresentable {
             url?.host == base.host && url?.port == base.port
         }
 
+        /// Hand only ordinary web links to the browser — never file:// or app URL schemes.
+        private func openExternally(_ url: URL?) {
+            guard let url, ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return }
+            NSWorkspace.shared.open(url)
+        }
+
         func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if isLocal(action.request.url) || action.request.url?.scheme == "about" {
                 decisionHandler(.allow)
             } else {
-                if let url = action.request.url { NSWorkspace.shared.open(url) }
+                openExternally(action.request.url)
                 decisionHandler(.cancel)
             }
         }
@@ -56,7 +62,7 @@ struct DashboardWebView: NSViewRepresentable {
         // target="_blank" links: open in the browser instead of a new web view.
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                      for action: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-            if let url = action.request.url { NSWorkspace.shared.open(url) }
+            openExternally(action.request.url)
             return nil
         }
     }
