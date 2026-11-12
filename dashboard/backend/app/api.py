@@ -6,12 +6,14 @@ import threading
 import time as _time
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 from typing import Annotated, Any, Callable
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from . import hktypes as hk
 from . import service, units
@@ -20,6 +22,10 @@ from .config import Settings, load_settings
 from .sources import MemorySource, PostgresSource, Source
 
 log = logging.getLogger(__name__)
+
+# The built web page (`npm run build`). When it exists the API serves it too, so the Mac app
+# needs only this one process instead of the API plus the Vite dev server.
+FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 
 MAX_RANGE_DAYS = 3 * 366
 EARLIEST = date(2000, 1, 1)
@@ -250,5 +256,9 @@ def create_app(
     @app.get("/api/body")
     def body(request: Request, source: SourceDep, rng: RangeDep) -> dict[str, Any]:
         return cached(request, ("body", *rng), lambda: service.body(source, *rng, settings.tz))
+
+    # Mounted last so every /api route above takes priority.
+    if (FRONTEND_DIST / "index.html").is_file():
+        app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
 
     return app

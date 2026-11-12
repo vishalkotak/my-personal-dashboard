@@ -1,0 +1,36 @@
+# XcodeGen spec for the Mac app. Don't edit the .xcodeproj; run ./build.sh instead.
+name: HealthDashboard
+options:
+  bundleIdPrefix: local.healthsync
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # Signed "to run locally": no Apple account or certificate needed for an app you build yourself.
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: NO
+    # The app starts the dashboard backend that lives in this repo, so it records where that is.
+    DASHBOARD_DIR: "$(SRCROOT)/.."
+
+targets:
+  HealthDashboard:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      - path: Assets.xcassets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.healthsync.dashboard
+        PRODUCT_NAME: Health Dashboard
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Info.plist
+        COMBINE_HIDPI_IMAGES: YES

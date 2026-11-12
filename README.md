@@ -64,6 +64,18 @@ This assumes the iPhone app is already syncing into your Supabase project (see [
    Set `TZ_NAME` to your time zone (default `America/Los_Angeles`). Days and nights are counted in it.
 3. **Start it:** `./dashboard/start.sh`, then open http://localhost:5173. The pill next to the title tells you whether the database is reachable and when the phone last uploaded something.
 
+## As a Mac app (no terminal, no browser)
+
+If you'd rather not start anything by hand, build the Mac app once:
+
+```bash
+./dashboard/desktop/build.sh     # needs Xcode and XcodeGen (brew install xcodegen)
+```
+
+It installs **Health Dashboard** in `~/Applications`, so you can open it from Spotlight or Launchpad like any other app. No Apple Developer account is needed, because it's signed to run only on your Mac.
+
+There's still a small local server, but you never manage it. When you open the app, it starts the Python backend on a free port on `127.0.0.1` and shows the dashboard in its own window. When you quit, the backend stops. If the app crashes, the backend notices within a second and exits too. The app reads the same `dashboard/.env`, and links to other sites open in your normal browser. Re-run `build.sh` after you pull changes. If the backend can't start, the window shows the reason and the last lines of `dashboard/logs/app.log`.
+
 ## How it fits together
 
 ```
