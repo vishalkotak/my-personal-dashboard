@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { rangeQuery, useApi, type MetricData, type TypeEntry, type TypesData } from "../api";
 import { C, DailyBars, StackedBars, TableToggle, TrendLines } from "../components/charts";
-import { Card, EmptyState, ErrorState, Legend, Load, Notice, Stat } from "../components/ui";
+import { Card, EmptyState, ErrorState, Legend, Load, Stat } from "../components/ui";
 import { average, formatAgo, formatDate, formatNumber, formatValue } from "../lib/format";
 import type { DateRange } from "../lib/range";
 import { groupTypes } from "../lib/explore";
@@ -47,10 +47,8 @@ function MetricBody({ m }: { m: MetricData }) {
           unit={unit}
           label="Total"
           average={average(vals)}
-          extraRows={(p) => [{ label: "Raw sum", value: formatValue(p.raw_sum as number | null, unit) }]}
         />
-        <Notice>Summed per day, counting overlapping samples from different devices once. Approximate.</Notice>
-        <PointsTable rows={m.points.map((p) => [p.date, formatValue(p.value, unit), formatValue(p.raw_sum, unit)])} head={["Total", "Raw sum"]} />
+        <PointsTable rows={m.points.map((p) => [p.date, formatValue(p.value, unit)])} head={["Total"]} />
       </>
     );
   }

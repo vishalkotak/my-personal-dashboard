@@ -25,13 +25,12 @@ function ActivityChart({
 }) {
   const state = useApi<Daily<CumulativePoint>>(`/api/daily?${rangeQuery(range, { type })}`);
   return (
-    <Card title={title} subtitle="Per day · approximate · dashed line is the daily average" wide>
+    <Card title={title} subtitle="Per day · dashed line is the daily average" wide>
       <Load state={state} isEmpty={empty}>
         {(d) => {
           const pts = d.points.map((p) => ({
             ...p,
             value: p.value == null ? null : p.value * scale,
-            raw: p.raw_sum == null ? null : p.raw_sum * scale,
           }));
           const vals = pts.map((p) => p.value);
           const avg = average(vals);
@@ -51,17 +50,13 @@ function ActivityChart({
                 unit={unit}
                 label={label}
                 average={avg}
-                extraRows={(row) => [
-                  { label: "Raw sum (double counts)", value: formatValue(row.raw as number | null, unit) },
-                ]}
               />
               <TableToggle>
                 <table>
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>{label} (de-duplicated)</th>
-                      <th>Raw sum</th>
+                      <th>{label}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -69,7 +64,6 @@ function ActivityChart({
                       <tr key={p.date}>
                         <td>{formatDate(p.date, true)}</td>
                         <td>{formatValue(p.value, unit)}</td>
-                        <td>{formatValue(p.raw, unit)}</td>
                       </tr>
                     ))}
                   </tbody>

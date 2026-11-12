@@ -12,7 +12,6 @@ function OverviewCard({
   color,
   tab,
   onOpen,
-  badge,
 }: {
   title: string;
   value: string;
@@ -21,7 +20,6 @@ function OverviewCard({
   color: string;
   tab: Tab;
   onOpen: (t: Tab) => void;
-  badge?: string;
 }) {
   return (
     <button type="button" className="ov-card" onClick={() => onOpen(tab)} aria-label={`${title}: ${value} ${unit ?? ""}. Open ${tab}`}>
@@ -30,11 +28,6 @@ function OverviewCard({
           <span className="dot" style={{ background: color }} />
           {title}
         </span>
-        {badge && (
-          <span className="badge" title="iPhone and Apple Watch samples can overlap; this total is de-duplicated by estimate.">
-            {badge}
-          </span>
-        )}
       </div>
       <div className="ov-value">
         {value}
@@ -84,7 +77,6 @@ export function Overview({ onOpen }: { onOpen: (t: Tab) => void }) {
           color={C.blue}
           tab="activity"
           onOpen={onOpen}
-          badge="≈ approx."
         />
         <OverviewCard
           title="Active energy"
@@ -94,7 +86,6 @@ export function Overview({ onOpen }: { onOpen: (t: Tab) => void }) {
           color={C.orange}
           tab="activity"
           onOpen={onOpen}
-          badge="≈ approx."
         />
         <OverviewCard
           title="Resting heart rate"
