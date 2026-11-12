@@ -13,6 +13,12 @@ A personal health dashboard that integrates with WHOOP to display health metrics
 - **Offline Support**: Local SQLite database for fast access
 - **Auto Sync**: Daily cron job to fetch latest data
 
+### Apple Health Sync (iPhone app)
+- **[apple-health-sync/](./apple-health-sync)**: a small iPhone app that copies Apple Health data (activity, heart, sleep, body & vitals) into your own Supabase database, in the background
+- Runs on a free Apple ID; a Mac script keeps it installed past the 7-day free-signing limit
+- Row-Level Security means each account can only ever see its own rows
+- MIT licensed, so anyone can use it. Setup is in its own README.
+
 ### Hypertrophy Training
 - **4-Day Upper/Lower Split**: Pre-configured workout program
 - **Workout Logging**: Track sets, reps, and weight for each exercise
@@ -43,6 +49,7 @@ my-personal-dashboard/
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   └── package.json
+├── apple-health-sync/      # iPhone app: Apple Health → Supabase (MIT)
 ├── start.sh                # Start all services
 ├── stop.sh                 # Stop all services
 ├── setup_sync.sh           # Setup daily sync job
@@ -185,4 +192,4 @@ The dashboard prioritizes metrics based on scientific research:
 
 ## License
 
-Private - Personal Use Only
+Private - Personal Use Only, except `apple-health-sync/`, which is MIT licensed (see its LICENSE file).
