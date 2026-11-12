@@ -202,3 +202,15 @@ def test_errors_do_not_leak_details():
     with TestClient(app, raise_server_exceptions=False) as c:
         r = c.get("/api/daily?type=hrv")
     assert r.status_code == 500 and "secret" not in r.text
+
+
+def test_database_outage_is_a_clean_503():
+    import psycopg
+
+    class Down(MemorySource):
+        def daily_stats(self, *a):
+            raise psycopg.OperationalError("connection to server at 10.0.0.1 failed: password=hunter2")
+
+    with TestClient(create_app(SETTINGS, Down({}, SETTINGS)), raise_server_exceptions=False) as c:
+        r = c.get("/api/daily?type=hrv")
+    assert r.status_code == 503 and "hunter2" not in r.text and "10.0.0.1" not in r.text

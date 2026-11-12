@@ -48,6 +48,15 @@ class TTLCache:
         return value
 
 
+def _is_db_unavailable(exc: Exception) -> bool:
+    try:
+        import psycopg
+        from psycopg_pool import PoolTimeout
+    except ImportError:  # pragma: no cover
+        return False
+    return isinstance(exc, (psycopg.OperationalError, PoolTimeout))
+
+
 def build_source(settings: Settings) -> Source:
     if settings.demo:
         from .demo import UNITS, generate
@@ -103,6 +112,12 @@ def create_app(
     @app.exception_handler(Exception)
     async def unhandled(request: Request, exc: Exception):  # pragma: no cover - safety net
         # Never leak connection strings or SQL in an error message.
+        if _is_db_unavailable(exc):
+            log.warning("database unavailable on %s: %s", request.url.path, type(exc).__name__)
+            return JSONResponse(
+                {"detail": "Can't reach the database. Check DATABASE_URL in dashboard/.env and your network."},
+                status_code=503,
+            )
         log.exception("unhandled error on %s", request.url.path)
         return JSONResponse({"detail": "Internal error. Check the backend log."}, status_code=500)
 
