@@ -30,6 +30,8 @@ FRONTEND_DIST = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 MAX_RANGE_DAYS = 3 * 366
 EARLIEST = date(2000, 1, 1)
 CACHE_TTL_S = 60.0
+# These two read the whole table (~1 s each) and change slowly, so keep them longer.
+SLOW_TTL_S = 300.0
 
 
 class TTLCache:
@@ -40,11 +42,11 @@ class TTLCache:
         self._d: dict[tuple, tuple[float, Any]] = {}
         self._lock = threading.Lock()
 
-    def get_or_set(self, key: tuple, fn: Callable[[], Any]) -> Any:
+    def get_or_set(self, key: tuple, fn: Callable[[], Any], ttl: float | None = None) -> Any:
         now = _time.monotonic()
         with self._lock:
             hit = self._d.get(key)
-            if hit and now - hit[0] < self.ttl:
+            if hit and now - hit[0] < (self.ttl if ttl is None else ttl):
                 return hit[1]
         value = fn()
         with self._lock:
@@ -86,6 +88,9 @@ def create_app(
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         app.state.source = source or build_source(settings)
+        if not settings.demo:
+            # Warm the slow, whole-table queries so the first page load doesn't wait for them.
+            threading.Thread(target=warm, args=(app,), daemon=True, name="cache-warm").start()
         try:
             yield
         finally:
@@ -152,25 +157,35 @@ def create_app(
 
     RangeDep = Annotated[tuple[date, date], Depends(date_range)]
 
+    def last_upload(cache: TTLCache, source: Source) -> datetime | None:
+        return cache.get_or_set(("last_upload",), source.last_upload, ttl=SLOW_TTL_S)
+
+    def warm(app: FastAPI) -> None:
+        try:
+            last_upload(app.state.cache, app.state.source)
+            type_stats_for(app.state.cache, app.state.source)
+        except Exception as e:  # noqa: BLE001 - warming is best-effort
+            log.info("cache warm-up skipped: %s", type(e).__name__)
+
     @app.get("/api/health")
     def health(request: Request, source: SourceDep) -> dict[str, Any]:
         reachable = source.ping()
-        last_upload = None
+        last_upload_at = None
         if reachable:
             try:
-                lu = source.last_upload()
-                last_upload = lu.isoformat() if lu else None
+                lu = last_upload(request.app.state.cache, source)
+                last_upload_at = lu.isoformat() if lu else None
             except Exception:  # noqa: BLE001
                 log.warning("could not read last upload time")
         return {
             "ok": True,
             "demo": settings.demo,
             "database_reachable": reachable,
-            "last_upload": last_upload,
+            "last_upload": last_upload_at,
             "tz": settings.tz_name,
         }
 
-    def type_stats(request: Request, source: Source) -> dict[str, Any]:
+    def type_stats_for(cache: TTLCache, source: Source) -> dict[str, Any]:
         """Types that have data, cached; unknown ones get registered with a best guess."""
 
         def load() -> dict[str, Any]:
@@ -180,7 +195,11 @@ def create_app(
                 out[st.type] = (info, st)
             return out
 
-        return cached(request, ("type_stats", service.today_local(settings.tz, settings.demo_now)), load)
+        today = service.today_local(settings.tz, settings.demo_now)
+        return cache.get_or_set(("type_stats", today), load, ttl=SLOW_TTL_S)
+
+    def type_stats(request: Request, source: Source) -> dict[str, Any]:
+        return type_stats_for(request.app.state.cache, source)
 
     @app.get("/api/types")
     def types(request: Request, source: SourceDep) -> dict[str, Any]:

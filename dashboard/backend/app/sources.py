@@ -8,6 +8,7 @@ paths as real data.
 from __future__ import annotations
 
 import logging
+import threading
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
@@ -73,6 +74,32 @@ class PostgresSource:
         )
         # Don't block start-up if the database is unreachable; /api/health will say so.
         self.pool.open(wait=False)
+        self._user_id = settings.user_id
+        self._user_resolved = settings.user_id is not None
+        self._user_lock = threading.Lock()
+
+    @property
+    def user_id(self) -> str | None:
+        """HEALTH_USER_ID, or the only account in the table when it's unset.
+
+        The table's index starts with user_id, so filtering on it turns ~1 s scans into
+        ~10 ms index lookups. With a single account there's nothing to choose, so detect it.
+        """
+        if self._user_resolved:
+            return self._user_id
+        with self._user_lock:
+            if not self._user_resolved:
+                ids = [r[0] for r in self._fetch(queries.distinct_users_query())]
+                if len(ids) == 1:
+                    self._user_id = str(ids[0])
+                    log.info("one account in the table; filtering on it so queries use the index")
+                elif ids:
+                    log.warning(
+                        "%d accounts in the table and HEALTH_USER_ID is unset: showing all of them, "
+                        "and queries will be slow. Set HEALTH_USER_ID in dashboard/.env.", len(ids)
+                    )
+                self._user_resolved = True
+        return self._user_id
 
     def _fetch(self, q: queries.Query) -> list[tuple]:
         sql, params = q
@@ -80,12 +107,12 @@ class PostgresSource:
             return conn.execute(sql, params).fetchall()
 
     def samples(self, hk_type, start, end):
-        rows = self._fetch(queries.samples_query(hk_type, start, end, self.settings.user_id))
+        rows = self._fetch(queries.samples_query(hk_type, start, end, self.user_id))
         return [Sample(r[0], r[1], float(r[2]), r[3] or {}) for r in rows]
 
     def daily_stats(self, hk_type, start, end):
         q = queries.daily_stats_query(
-            hk_type, start, end, self.settings.tz_name, self.settings.user_id
+            hk_type, start, end, self.settings.tz_name, self.user_id
         )
         return [
             DayStat(r[0], float(r[1]), float(r[2]), float(r[3]), int(r[4]), float(r[5]))
@@ -93,18 +120,18 @@ class PostgresSource:
         ]
 
     def latest(self, hk_type):
-        rows = self._fetch(queries.latest_query(hk_type, self.settings.user_id))
+        rows = self._fetch(queries.latest_query(hk_type, self.user_id))
         if not rows:
             return None
         r = rows[0]
         return Sample(r[0], r[1], float(r[2]), r[3] or {})
 
     def last_upload(self):
-        rows = self._fetch(queries.last_upload_query(self.settings.user_id))
+        rows = self._fetch(queries.last_upload_query(self.user_id))
         return rows[0][0] if rows else None
 
     def type_stats(self):
-        rows = self._fetch(queries.type_stats_query(self.settings.user_id))
+        rows = self._fetch(queries.type_stats_query(self.user_id))
         return [TypeStat(r[0], r[1], int(r[2]), r[3]) for r in rows]
 
     def ping(self) -> bool:

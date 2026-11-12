@@ -101,3 +101,20 @@ def last_upload_query(user_id: str | None) -> Query:
     params: dict[str, Any] = {}
     where = _user_clause(user_id, params).replace(" and ", " where ", 1)
     return "select max(uploaded_at) from public.health_samples" + where, params
+
+
+def distinct_users_query() -> Query:
+    """Up to 3 distinct account IDs, found by hopping along the (user_id, ...) index.
+
+    A plain `select distinct user_id` reads the whole table; this touches a few index pages.
+    """
+    return (
+        "with recursive u as ("
+        " (select user_id from public.health_samples order by user_id limit 1)"
+        " union all"
+        " select (select h.user_id from public.health_samples h"
+        "  where h.user_id > u.user_id order by h.user_id limit 1)"
+        " from u where u.user_id is not null)"
+        " select user_id from u where user_id is not null limit 3",
+        {},
+    )
