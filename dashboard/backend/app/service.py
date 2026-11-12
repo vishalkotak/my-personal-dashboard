@@ -11,6 +11,8 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from . import hktypes as hk
+from . import units
+from .catalog import TypeInfo
 from .dedupe import (
     daily_cumulative,
     daily_raw_sum,
@@ -41,6 +43,15 @@ def date_range(frm: date, to: date) -> list[date]:
 
 def _r(x: float | None, nd: int = 1) -> float | None:
     return None if x is None else round(x, nd)
+
+
+def _sig(x: float | None, digits: int = 4) -> float | None:
+    """Round to significant digits, so 0.0000024 g of vitamin B12 survives as 2.4 µg."""
+    if x is None or x == 0:
+        return x
+    from math import floor, log10
+
+    return round(x, max(0, digits - 1 - floor(log10(abs(x)))))
 
 
 def today_local(tz: ZoneInfo, now: datetime | None = None) -> date:
@@ -335,3 +346,95 @@ def summary(src: Source, days: int, tz: ZoneInfo, now: datetime | None = None) -
     }
 
     return {"today": today.isoformat(), "days": days, "cards": cards}
+
+
+# ---------------------------------------------------------------- any type (Explore)
+
+
+def metric(src: Source, info: TypeInfo, frm: date, to: date, tz: ZoneInfo) -> dict[str, Any]:
+    """Daily series for any catalog type, using the catalog's aggregation.
+
+    sum      -> de-duplicated daily total (same overlap handling as steps), plus raw SUM
+    average  -> daily avg / min / max / count
+    duration -> (categories, workouts) total minutes and event count per day, with a
+                breakdown by category value when the values mean something (> 0)
+    """
+    start, end = local_midnight(frm, tz), local_midnight(to + timedelta(days=1), tz)
+    days = date_range(frm, to)
+    disp, k = units.display(info.id, info.unit)
+    base = {"type": info.to_dict(), "display_unit": disp}
+
+    if info.id == hk.SLEEP:
+        # Overlapping phone/watch sleep needs the same de-duplication as the Sleep tab.
+        nights = sleep(src, frm, to, tz)["nights"]
+        names = {"deep_min": "Deep", "core_min": "Core", "rem_min": "REM",
+                 "unspecified_min": "Asleep", "awake_min": "Awake"}
+        points = []
+        for n in nights:
+            if not n["has_data"]:
+                points.append({"date": n["night"], "minutes": None, "count": 0, "breakdown": {}})
+                continue
+            bd = {lbl: n[key] for key, lbl in names.items() if n[key]}
+            other = round(n["in_bed_min"] - sum(bd.values()), 1)
+            if other > 0:
+                bd["In bed"] = other
+            points.append({"date": n["night"], "minutes": n["in_bed_min"], "count": 1, "breakdown": bd})
+        labels = [lbl for lbl in [*names.values(), "In bed"] if any(lbl in p["breakdown"] for p in points)]
+        return {**base, "aggregation": "duration", "display_unit": "min", "labels": labels,
+                "per": "night", "points": points}
+
+    if info.kind in ("category", "workout") or info.aggregation == "duration":
+        rows = [s for s in src.samples(info.id, start, end) if start <= s.start < end]
+        per_day: dict[date, dict[str, Any]] = {}
+        has_values = info.kind == "category" and any(s.value > 0 for s in rows)
+        for s in rows:
+            d = local_date(s.start, tz)
+            p = per_day.setdefault(d, {"minutes": 0.0, "count": 0, "breakdown": defaultdict(float)})
+            minutes = (s.end - s.start).total_seconds() / 60
+            p["minutes"] += minutes
+            p["count"] += 1
+            if has_values:
+                p["breakdown"][units.category_label(info.id, info.group, s.value)] += minutes
+        labels = sorted({lbl for p in per_day.values() for lbl in p["breakdown"]})
+        points = []
+        for d in days:
+            p = per_day.get(d)
+            points.append(
+                {
+                    "date": d.isoformat(),
+                    "minutes": round(p["minutes"], 1) if p else None,
+                    "count": p["count"] if p else 0,
+                    "breakdown": {lbl: round(v, 1) for lbl, v in p["breakdown"].items()} if p else {},
+                }
+            )
+        return {**base, "aggregation": "duration", "display_unit": "min", "labels": labels,
+                "per": "day", "points": points}
+
+    if info.aggregation == "sum":
+        samples = src.samples(info.id, start, end)
+        dedup = daily_cumulative(samples, tz)
+        raw = daily_raw_sum([s for s in samples if start <= s.start < end], tz)
+        points = [
+            {
+                "date": d.isoformat(),
+                "value": _sig(dedup[d] * k) if d in dedup else (0.0 if d in raw else None),
+                "raw_sum": _sig(raw[d] * k) if d in raw else None,
+            }
+            for d in days
+        ]
+        return {**base, "aggregation": "sum", "approximate": True, "note": APPROX_NOTE, "points": points}
+
+    stats = {s.day: s for s in src.daily_stats(info.id, start, end)}
+    points = []
+    for d in days:
+        st = stats.get(d)
+        points.append(
+            {
+                "date": d.isoformat(),
+                "avg": _sig(st.avg * k) if st else None,
+                "min": _sig(st.min * k) if st else None,
+                "max": _sig(st.max * k) if st else None,
+                "count": st.count if st else 0,
+            }
+        )
+    return {**base, "aggregation": "average", "points": points}

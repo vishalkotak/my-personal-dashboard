@@ -26,7 +26,8 @@ from psycopg import errors  # noqa: E402
 from app import hktypes as hk  # noqa: E402
 from app import service  # noqa: E402
 from app.config import load_settings  # noqa: E402
-from app.demo import generate  # noqa: E402
+from app.catalog import load_catalog  # noqa: E402
+from app.demo import UNITS, generate  # noqa: E402
 from app.sources import MemorySource, PostgresSource  # noqa: E402
 
 ADMIN_URL = os.environ.get("TEST_DATABASE_ADMIN_URL")
@@ -107,8 +108,9 @@ def seeded(db):
 
 
 def hk_unit(t: str) -> str:
-    m = hk.lookup_metric(t)
-    return m.unit if m else ("s" if t == hk.WORKOUT else "category")
+    from app.demo import UNITS
+
+    return UNITS[t]
 
 
 # ---------------------------------------------------------------- role & permissions
@@ -187,7 +189,7 @@ def sources(db, seeded):
     settings = load_settings({"DATABASE_URL": db["reader"], "HEALTH_USER_ID": str(ME)})
     pg = PostgresSource(settings)
     pg.pool.wait(timeout=10)
-    mem = MemorySource(data, settings)
+    mem = MemorySource(data, settings, units=UNITS)
     yield pg, mem
     pg.close()
 
@@ -207,7 +209,7 @@ def assert_same(a, b, path="$"):
         for i, (x, y) in enumerate(zip(a, b)):
             assert_same(x, y, f"{path}[{i}]")
     elif isinstance(a, float) and isinstance(b, (int, float)):
-        assert a == pytest.approx(b, abs=0.1 + 1e-9), path
+        assert a == pytest.approx(b, rel=1e-3, abs=0.1 + 1e-9), path
     else:
         assert a == b, path
 
@@ -228,6 +230,20 @@ def test_endpoints_match_in_memory(sources, fn):
 def test_summary_matches_in_memory(sources):
     pg, mem = sources
     assert_same(service.summary(pg, 7, TZ, now=NOW), service.summary(mem, 7, TZ, now=NOW))
+
+
+@pytest.mark.parametrize("type_id", sorted(UNITS))
+def test_generic_metric_matches_in_memory(sources, type_id):
+    pg, mem = sources
+    info = load_catalog().get(type_id)
+    assert_same(service.metric(pg, info, FROM, TO, TZ), service.metric(mem, info, FROM, TO, TZ))
+
+
+def test_type_stats_match(sources):
+    pg, mem = sources
+    a = {t.type: (t.unit, t.count, t.latest) for t in pg.type_stats()}
+    b = {t.type: (t.unit, t.count, t.latest) for t in mem.type_stats()}
+    assert a == b
 
 
 def test_ping_and_last_upload(sources):

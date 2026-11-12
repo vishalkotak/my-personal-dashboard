@@ -23,8 +23,12 @@ def test_deterministic():
     assert generate(now=NOW, tz=LA, days=20, seed=1) != a
 
 
-def test_covers_every_type(data):
-    assert set(data) == hk.ALL_HK_TYPES
+def test_covers_every_curated_type_plus_explore_extras(data):
+    from app.demo import UNITS
+
+    assert set(data) == set(UNITS)
+    assert hk.ALL_HK_TYPES < set(data)
+    assert len(set(data) - hk.ALL_HK_TYPES) == 7
 
 
 def test_covers_about_a_year_and_nothing_in_the_future(data):

@@ -16,6 +16,7 @@ def all_queries(user_id):
         queries.daily_stats_query(hk.HEART_RATE, T0, T1, "America/Los_Angeles", user_id),
         queries.latest_query(hk.BODY_MASS, user_id),
         queries.last_upload_query(user_id),
+        queries.type_stats_query(user_id),
     ]
 
 
@@ -52,7 +53,7 @@ def test_daily_stats_buckets_in_configured_tz():
     assert "date_trunc('day', start_date, %(tz)s)" in sql and params["tz"] == "Europe/London"
 
 
-@pytest.mark.parametrize("bad", ["x", "steps", "HKQuantityTypeIdentifierDietaryCaffeine", "'; drop table x; --"])
+@pytest.mark.parametrize("bad", ["x", "steps", "HK", "HKQuantity Type", "'; drop table x; --", "HK" + "a" * 200])
 def test_builders_reject_types_outside_allowlist(bad):
     with pytest.raises(ValueError):
         queries.samples_query(bad, T0, T1, None)

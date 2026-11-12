@@ -14,7 +14,8 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 
 from . import hktypes as hk
-from . import service
+from . import service, units
+from .catalog import Catalog, load_catalog
 from .config import Settings, load_settings
 from .sources import MemorySource, PostgresSource, Source
 
@@ -49,19 +50,23 @@ class TTLCache:
 
 def build_source(settings: Settings) -> Source:
     if settings.demo:
-        from .demo import generate
+        from .demo import UNITS, generate
 
         log.info("DEMO=1: serving synthetic data")
         return MemorySource(
             generate(tz=settings.tz),
             settings,
             last_upload=datetime.now(timezone.utc) - timedelta(minutes=7),
+            units=UNITS,
         )
     return PostgresSource(settings)
 
 
-def create_app(settings: Settings | None = None, source: Source | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None, source: Source | None = None, catalog: Catalog | None = None
+) -> FastAPI:
     settings = settings or load_settings()
+    catalog = catalog or load_catalog(settings.types_path)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -80,6 +85,7 @@ def create_app(settings: Settings | None = None, source: Source | None = None) -
         redoc_url=None,
     )
     app.state.settings = settings
+    app.state.catalog = catalog
     app.state.cache = TTLCache()
 
     # Only answer requests addressed to this machine (blocks DNS-rebinding tricks).
@@ -143,14 +149,53 @@ def create_app(settings: Settings | None = None, source: Source | None = None) -
             "tz": settings.tz_name,
         }
 
+    def type_stats(request: Request, source: Source) -> dict[str, Any]:
+        """Types that have data, cached; unknown ones get registered with a best guess."""
+
+        def load() -> dict[str, Any]:
+            out = {}
+            for st in source.type_stats():
+                info = catalog.get(st.type) or catalog.add_discovered(st.type, st.unit)
+                out[st.type] = (info, st)
+            return out
+
+        return cached(request, ("type_stats", service.today_local(settings.tz)), load)
+
     @app.get("/api/types")
-    def types() -> dict[str, Any]:
+    def types(request: Request, source: SourceDep) -> dict[str, Any]:
+        """Every type that has data, with its catalog entry, row count and latest date."""
+        rows = []
+        for info, st in type_stats(request, source).values():
+            disp, _ = units.display(info.id, info.unit)
+            rows.append(
+                {
+                    **info.to_dict(),
+                    "display_unit": "min" if info.aggregation == "duration" or info.kind != "quantity" else disp,
+                    "count": st.count,
+                    "latest": st.latest.isoformat() if st.latest else None,
+                }
+            )
+        rows.sort(key=lambda r: (r["group"], r["name"]))
         return {
-            "types": [
-                {"key": m.key, "hk_type": m.hk_type, "kind": m.kind, "label": m.label, "unit": m.display_unit}
-                for m in hk.METRICS.values()
-            ]
+            "catalog_source": catalog.source,
+            "catalog_size": len(catalog.by_id),
+            "types": rows,
         }
+
+    @app.get("/api/metric")
+    def metric(
+        request: Request,
+        source: SourceDep,
+        rng: RangeDep,
+        type: Annotated[str, Query(max_length=128, description="Any HealthKit identifier in the catalog")],
+    ) -> dict[str, Any]:
+        info = catalog.get(type)
+        if info is None:
+            hit = type_stats(request, source).get(type)
+            info = hit[0] if hit else None
+        if info is None:
+            raise HTTPException(422, "Unknown type")
+        return cached(request, ("metric", info.id, *rng), lambda: service.metric(source, info, *rng, settings.tz))
 
     @app.get("/api/summary")
     def summary(

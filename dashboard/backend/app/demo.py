@@ -8,7 +8,9 @@ gets exercised:
   overlapping in time, with different sample granularity;
 * sleep has a coarse iPhone "in bed" block (and sometimes "asleep") on top of the
   watch's staged samples, and some nights have no watch at all;
-* blood pressure occasionally has a systolic reading without its diastolic partner.
+* blood pressure occasionally has a systolic reading without its diastolic partner;
+* a few extra types (VO2 max, respiratory rate, water, protein, flights climbed,
+  mindful minutes, headaches) so the Explore tab has something to show.
 """
 
 from __future__ import annotations
@@ -21,6 +23,28 @@ from zoneinfo import ZoneInfo
 
 from . import hktypes as hk
 from .dedupe import Sample
+
+VO2MAX = "HKQuantityTypeIdentifierVO2Max"
+RESP_RATE = "HKQuantityTypeIdentifierRespiratoryRate"
+WATER = "HKQuantityTypeIdentifierDietaryWater"
+PROTEIN = "HKQuantityTypeIdentifierDietaryProtein"
+FLIGHTS = "HKQuantityTypeIdentifierFlightsClimbed"
+MINDFUL = "HKCategoryTypeIdentifierMindfulSession"
+HEADACHE = "HKCategoryTypeIdentifierHeadache"
+
+# Stored unit per type, as the iPhone app writes them.
+UNITS = {
+    **{m.hk_type: m.unit for m in hk.METRICS.values()},
+    hk.SLEEP: "category",
+    hk.WORKOUT: "s",
+    VO2MAX: "ml/(kg*min)",
+    RESP_RATE: "count/min",
+    WATER: "mL",
+    PROTEIN: "g",
+    FLIGHTS: "count",
+    MINDFUL: "category",
+    HEADACHE: "category",
+}
 
 DEFAULT_SEED = 20261111
 DAYS = 400
@@ -128,6 +152,9 @@ def generate(
             for _ in range(rng.randint(3, 8)):
                 ts = sleep_start + timedelta(minutes=rng.uniform(20, duration * 60 - 10))
                 add(hk.SPO2, ts, ts, round(min(1.0, rng.gauss(0.965, 0.012)), 3))
+            for _ in range(rng.randint(3, 6)):
+                ts = sleep_start + timedelta(minutes=rng.uniform(20, duration * 60 - 10))
+                add(RESP_RATE, ts, ts, round(rng.gauss(14.5, 0.9), 1))
 
         # ---------------------------------------------------------------- vitals
         if watch_today:
@@ -157,6 +184,26 @@ def generate(
             ts = _utc(d, 8 + rng.random() * 12, tz)
             add(hk.BODY_TEMP, ts, ts, round(rng.gauss(36.7, 0.2), 2))
 
+        # ---------------------------------------------------------------- extras for Explore
+        if watch_today and rng.random() < 0.15:
+            ts = _utc(d, 18 + rng.random(), tz)
+            add(VO2MAX, ts, ts, round(rng.gauss(41.5 + 2.5 * progress, 0.6), 1))
+        for _ in range(rng.randint(3, 8)):
+            ts = _utc(d, rng.uniform(7.5, 21.5), tz)
+            add(WATER, ts, ts, rng.choice([250.0, 330.0, 500.0]))
+            if rng.random() < 0.08:  # a second app logging the same glass at the same moment
+                add(WATER, ts, ts, 250.0)
+        for meal in (8.0, 12.5, 19.0):
+            if rng.random() < 0.85:
+                ts = _utc(d, meal + rng.uniform(0, 1), tz)
+                add(PROTEIN, ts, ts, round(rng.uniform(18, 45), 1))
+        if rng.random() < 0.35:
+            ts = _utc(d, rng.choice([7.8, 13.0, 21.8]), tz)
+            add(MINDFUL, ts, ts + timedelta(minutes=rng.choice([5, 10, 10, 15, 20])), 0)
+        if rng.random() < 0.05:
+            ts = _utc(d, rng.uniform(10, 18), tz)
+            add(HEADACHE, ts, ts + timedelta(hours=rng.uniform(0.5, 4)), rng.choice([2, 2, 3, 4]))
+
         # ---------------------------------------------------------------- daytime activity
         target = max(1500, rng.gauss(9000 + 1500 * progress - (1500 if weekend else 0), 2600))
         n_bouts = rng.randint(7, 14)
@@ -175,6 +222,7 @@ def generate(
             meters = steps * rng.uniform(0.72, 0.8)
             kcal = minutes * rng.uniform(3.5, 5.0)
             phone_carried = rng.random() < 0.8
+            flights = rng.choice([0, 0, 0, 1, 1, 2, 3])
             if watch_today:
                 for a, b, v in _chunks(b_start, b_end, steps, 2.5, rng):
                     add(hk.STEPS, a, b, round(v))
@@ -182,12 +230,16 @@ def generate(
                     add(hk.DISTANCE, a, b, round(v, 1))
                 for a, b, v in _chunks(b_start, b_end, kcal, 5, rng):
                     add(hk.ACTIVE_ENERGY, a, b, round(v, 2))
+                if flights:
+                    add(FLIGHTS, b_start, b_end, flights)
             if phone_carried or not watch_today:
                 seen = rng.uniform(0.85, 1.0)  # the phone misses a little when it's on a desk
                 for a, b, v in _chunks(b_start, b_end, steps * seen, 8, rng):
                     add(hk.STEPS, a, b, round(v))
                 for a, b, v in _chunks(b_start, b_end, meters * seen, 8, rng):
                     add(hk.DISTANCE, a, b, round(v, 1))
+                if flights:
+                    add(FLIGHTS, b_start, b_end, flights)
                 if rng.random() < 0.5:
                     for a, b, v in _chunks(b_start, b_end, kcal * 0.6, 10, rng):
                         add(hk.ACTIVE_ENERGY, a, b, round(v, 2))

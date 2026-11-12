@@ -22,6 +22,7 @@ class Settings:
     frontend_origins: tuple[str, ...]
     port: int
     statement_timeout_ms: int
+    types_path: Path | None = None  # None -> apple-health-sync/HealthSync/HealthTypes.json
 
     @property
     def tz(self) -> ZoneInfo:
@@ -66,4 +67,5 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
         ),
         port=int(env.get("API_PORT") or 8000),
         statement_timeout_ms=int(env.get("STATEMENT_TIMEOUT_MS") or 15000),
+        types_path=Path(env["HEALTH_TYPES_PATH"]).expanduser() if env.get("HEALTH_TYPES_PATH") else None,
     )

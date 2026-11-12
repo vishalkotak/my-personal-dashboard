@@ -6,10 +6,9 @@ They're plain functions returning (sql, params) so they can be tested without a 
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timedelta
 from typing import Any
-
-from . import hktypes as hk
 
 Query = tuple[str, dict[str, Any]]
 
@@ -25,9 +24,15 @@ def _user_clause(user_id: str | None, params: dict[str, Any]) -> str:
     return " and user_id = %(user_id)s"
 
 
+_TYPE_RE = re.compile(r"HK[A-Za-z0-9]{1,126}")
+
+
 def _check_type(hk_type: str) -> None:
-    if hk_type not in hk.ALL_HK_TYPES:  # defence in depth; the API validates first
-        raise ValueError(f"unknown type {hk_type!r}")
+    # Defence in depth: the API already checks the type against the catalog, and the
+    # value is a bound parameter anyway. This just refuses anything that isn't shaped
+    # like a HealthKit identifier.
+    if not isinstance(hk_type, str) or not _TYPE_RE.fullmatch(hk_type):
+        raise ValueError(f"invalid type {hk_type!r}")
 
 
 def samples_query(hk_type: str, start: datetime, end: datetime, user_id: str | None) -> Query:
@@ -79,6 +84,17 @@ def latest_query(hk_type: str, user_id: str | None) -> Query:
         + " order by start_date desc limit 1"
     )
     return sql, params
+
+
+def type_stats_query(user_id: str | None) -> Query:
+    """Which types have data: row count and latest sample per type."""
+    params: dict[str, Any] = {}
+    where = _user_clause(user_id, params).replace(" and ", " where ", 1)
+    return (
+        "select type, min(unit) as unit, count(*) as n, max(end_date) as latest"
+        " from public.health_samples" + where + " group by type order by type",
+        params,
+    )
 
 
 def last_upload_query(user_id: str | None) -> Query:

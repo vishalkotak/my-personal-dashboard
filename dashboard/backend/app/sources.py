@@ -8,6 +8,7 @@ paths as real data.
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
 
@@ -18,11 +19,20 @@ from .dedupe import DayStat, Sample, daily_discrete
 log = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True)
+class TypeStat:
+    type: str
+    unit: str
+    count: int
+    latest: datetime | None
+
+
 class Source(Protocol):
     def samples(self, hk_type: str, start: datetime, end: datetime) -> list[Sample]: ...
     def daily_stats(self, hk_type: str, start: datetime, end: datetime) -> list[DayStat]: ...
     def latest(self, hk_type: str) -> Sample | None: ...
     def last_upload(self) -> datetime | None: ...
+    def type_stats(self) -> list[TypeStat]: ...
     def ping(self) -> bool: ...
     def close(self) -> None: ...
 
@@ -93,6 +103,10 @@ class PostgresSource:
         rows = self._fetch(queries.last_upload_query(self.settings.user_id))
         return rows[0][0] if rows else None
 
+    def type_stats(self):
+        rows = self._fetch(queries.type_stats_query(self.settings.user_id))
+        return [TypeStat(r[0], r[1], int(r[2]), r[3]) for r in rows]
+
     def ping(self) -> bool:
         try:
             with self.pool.connection(timeout=5) as conn:
@@ -109,8 +123,15 @@ class PostgresSource:
 class MemorySource:
     """Serves samples from memory. Used for demo mode and in tests."""
 
-    def __init__(self, by_type: dict[str, list[Sample]], settings: Settings, last_upload=None):
+    def __init__(
+        self,
+        by_type: dict[str, list[Sample]],
+        settings: Settings,
+        last_upload=None,
+        units: dict[str, str] | None = None,
+    ):
         self.settings = settings
+        self.units = units or {}
         self.by_type = {t: sorted(v, key=lambda s: s.start) for t, v in by_type.items()}
         self._last_upload = last_upload
 
@@ -132,6 +153,13 @@ class MemorySource:
 
     def last_upload(self):
         return self._last_upload
+
+    def type_stats(self):
+        return [
+            TypeStat(t, self.units.get(t, ""), len(rows), max(s.end for s in rows))
+            for t, rows in sorted(self.by_type.items())
+            if rows
+        ]
 
     def ping(self) -> bool:
         return True
