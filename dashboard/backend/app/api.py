@@ -1,6 +1,7 @@
 """The HTTP API. Read-only: every route is a GET."""
 
 
+import json
 import logging
 import threading
 import time as _time
@@ -12,12 +13,15 @@ from typing import Annotated, Any, Callable
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
+from pydantic import BaseModel, Field
 from fastapi.staticfiles import StaticFiles
 
 from . import hktypes as hk
 from . import service, units
+from .agent_tools import HealthTools
 from .catalog import Catalog, load_catalog
+from .coach import Coach
 from .config import Settings, load_settings
 from .sources import MemorySource, PostgresSource, Source
 
@@ -88,6 +92,7 @@ def create_app(
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         app.state.source = source or build_source(settings)
+        app.state.coach = Coach(HealthTools(settings, app.state.source, catalog))
         if not settings.demo:
             # Warm the slow, whole-table queries so the first page load doesn't wait for them.
             threading.Thread(target=warm, args=(app,), daemon=True, name="cache-warm").start()
@@ -275,6 +280,38 @@ def create_app(
     @app.get("/api/body")
     def body(request: Request, source: SourceDep, rng: RangeDep) -> dict[str, Any]:
         return cached(request, ("body", *rng), lambda: service.body(source, *rng, settings.tz))
+
+    # ---------------------------------------------------------------- coach (chat)
+
+    class ChatIn(BaseModel):
+        message: str = Field(max_length=8000)
+        conversation_id: str | None = Field(default=None, max_length=64)
+
+    def same_origin_only(request: Request) -> None:
+        """The only POST route spends API credit and can write notes, so refuse anything a
+        different website could trigger: it must be JSON, carry our header (which forces a
+        CORS preflight that the GET-only CORS policy rejects), and come from this origin."""
+        if request.headers.get("x-coach") != "1" or not request.headers.get("content-type", "").startswith("application/json"):
+            raise HTTPException(403, "Forbidden")
+        origin = request.headers.get("origin")
+        if origin and origin.split("://", 1)[-1] != request.headers.get("host"):
+            raise HTTPException(403, "Forbidden")
+
+    @app.get("/api/coach/status")
+    def coach_status() -> dict[str, Any]:
+        return {"configured": Coach.configured()}
+
+    @app.post("/api/coach/chat")
+    async def coach_chat(request: Request) -> StreamingResponse:
+        same_origin_only(request)  # before reading the body, so nothing untrusted is parsed
+        try:
+            body = ChatIn.model_validate_json(await request.body())
+        except ValueError:
+            raise HTTPException(422, "Expected {message, conversation_id?}") from None
+        events = request.app.state.coach.reply(body.conversation_id, body.message)
+        sse = (f"data: {json.dumps(e)}\n\n" for e in events)
+        return StreamingResponse(sse, media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
 
     # Mounted last so every /api route above takes priority.
     if (FRONTEND_DIST / "index.html").is_file():

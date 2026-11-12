@@ -5,6 +5,7 @@ import { formatAgo } from "./lib/format";
 import { rangeFromParams, rangeToParams, toISODate, type DateRange } from "./lib/range";
 import { Activity } from "./pages/Activity";
 import { Body } from "./pages/Body";
+import { Coach } from "./pages/Coach";
 import { Explore } from "./pages/Explore";
 import { Heart } from "./pages/Heart";
 import { Overview } from "./pages/Overview";
@@ -65,6 +66,7 @@ export function App() {
     window.scrollTo({ top: 0 });
   }, []);
   const setRange = useCallback((range: DateRange) => setRoute((r) => ({ ...r, range })), []);
+  const [chatReset, setChatReset] = useState(0);
 
   const { tab, range } = route;
   return (
@@ -100,11 +102,19 @@ export function App() {
           <h2 className="page-title">{TABS.find((t) => t.id === tab)!.label}</h2>
           {tab === "overview" ? (
             <span className="muted">Today</span>
+          ) : tab === "coach" ? (
+            <button type="button" className="btn-quiet" onClick={() => setChatReset((n) => n + 1)}>
+              New chat
+            </button>
           ) : (
             <RangePicker key={`${range.preset}-${range.from}-${range.to}`} range={range} today={today} onChange={setRange} />
           )}
         </div>
         {tab === "overview" && <Overview onOpen={go} />}
+        {/* Stays mounted so the conversation survives switching tabs. */}
+        <div hidden={tab !== "coach"}>
+          <Coach resetSignal={chatReset} />
+        </div>
         {tab === "activity" && <Activity range={range} />}
         {tab === "heart" && <Heart range={range} />}
         {tab === "sleep" && <Sleep range={range} />}

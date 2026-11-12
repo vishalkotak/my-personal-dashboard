@@ -1,7 +1,8 @@
-export type Tab = "overview" | "activity" | "heart" | "sleep" | "body" | "workouts" | "explore";
+export type Tab = "overview" | "coach" | "activity" | "heart" | "sleep" | "body" | "workouts" | "explore";
 
 export const TABS: { id: Tab; label: string }[] = [
   { id: "overview", label: "Overview" },
+  { id: "coach", label: "Coach" },
   { id: "activity", label: "Activity" },
   { id: "heart", label: "Heart" },
   { id: "sleep", label: "Sleep" },

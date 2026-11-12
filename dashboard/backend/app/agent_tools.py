@@ -375,3 +375,96 @@ def _load_rules() -> dict[str, Any]:
     if _rules_cache is None:
         _rules_cache = json.loads(RULES_PATH.read_text())
     return _rules_cache
+
+
+# ---------------------------------------------------------------------- tool specs (shared)
+
+_DATE = {"type": "string", "description": "YYYY-MM-DD"}
+
+# One description per tool, used by the MCP server and by the in-app Coach alike.
+TOOL_SPECS: list[dict[str, Any]] = [
+    {"name": "list_available_data",
+     "description": "List every kind of health data that exists, with sample counts and the date of the "
+                    "latest reading, plus today's date, the time zone, and the person's age. Call this first "
+                    "when unsure what data exists or whether it's up to date.",
+     "input_schema": {"type": "object", "properties": {}, "additionalProperties": False}},
+    {"name": "get_metric",
+     "description": "One metric over a date range, as daily totals (steps, energy, distance), daily averages "
+                    "(heart rate, HRV, weight), or minutes per day (categories). `metric` is a short name "
+                    "(steps, distance, active_energy, heart_rate, resting_hr, hrv, body_mass, spo2, body_temp, "
+                    "bp_systolic, bp_diastolic) or any HealthKit identifier / name from list_available_data, "
+                    "e.g. \"VO2 Max\". The default range is the last 30 days. granularity: auto (day ≤ 62 days, "
+                    "week ≤ 370, else month), day, week or month. Returns summary stats and one point per period.",
+     "input_schema": {"type": "object", "additionalProperties": False, "required": ["metric"], "properties": {
+         "metric": {"type": "string"}, "start": _DATE, "end": _DATE,
+         "granularity": {"type": "string", "enum": ["auto", "day", "week", "month"]}}}},
+    {"name": "compare_periods",
+     "description": "Compare a metric's mean daily value between period A and period B. Use for before/after "
+                    "questions, e.g. HRV before vs. after starting a habit.",
+     "input_schema": {"type": "object", "additionalProperties": False,
+                      "required": ["metric", "a_start", "a_end", "b_start", "b_end"],
+                      "properties": {"metric": {"type": "string"}, "a_start": _DATE, "a_end": _DATE,
+                                     "b_start": _DATE, "b_end": _DATE}}},
+    {"name": "get_sleep",
+     "description": "Sleep per night (asleep hours, deep/REM/awake minutes, bedtime), or per week for ranges "
+                    "over 62 days, plus averages, nights under 7 h, and bedtime spread (regularity). A night is "
+                    "labelled with the date you woke up. Default: the last 30 nights.",
+     "input_schema": {"type": "object", "additionalProperties": False,
+                      "properties": {"start": _DATE, "end": _DATE}}},
+    {"name": "get_workouts",
+     "description": "Workouts in a date range: minutes and sessions by type and by week, strength-training "
+                    "minutes, and up to 30 recent sessions. Default: the last 30 days.",
+     "input_schema": {"type": "object", "additionalProperties": False,
+                      "properties": {"start": _DATE, "end": _DATE}}},
+    {"name": "longevity_status",
+     "description": "Where the person stands on each research-backed longevity marker (daily steps, weekly "
+                    "exercise, strength training, sleep duration and regularity, resting heart rate, VO2 max): "
+                    "current value, target, status (on_target / below_target / no_recent_data), and the study "
+                    "behind it. Use for \"how am I doing\" questions.",
+     "input_schema": {"type": "object", "properties": {}, "additionalProperties": False}},
+    {"name": "get_research",
+     "description": "The evidence behind the longevity targets: citation, key finding and link, for one marker "
+                    "(e.g. \"sleep\", \"vo2max\") or all of them.",
+     "input_schema": {"type": "object", "additionalProperties": False,
+                      "properties": {"marker": {"type": "string"}}}},
+    {"name": "remember",
+     "description": "Save context the person mentions that explains their data or shapes advice: an illness, "
+                    "injury, travel, a goal, an experiment they're running. Short, dated notes.",
+     "input_schema": {"type": "object", "additionalProperties": False, "required": ["note"],
+                      "properties": {"note": {"type": "string"}}}},
+    {"name": "recall",
+     "description": "Every saved note, oldest first. Check before judging a period or giving advice.",
+     "input_schema": {"type": "object", "properties": {}, "additionalProperties": False}},
+    {"name": "forget",
+     "description": "Delete a saved note by id (from recall) when it's wrong or no longer relevant.",
+     "input_schema": {"type": "object", "additionalProperties": False, "required": ["note_id"],
+                      "properties": {"note_id": {"type": "integer"}}}},
+]
+DESCRIPTIONS = {s["name"]: s["description"] for s in TOOL_SPECS}
+_SPECS = {s["name"]: s for s in TOOL_SPECS}
+_JSON_TYPES = {"string": str, "integer": int}
+
+
+def call_tool(tools: HealthTools, name: str, args: Any) -> dict[str, Any]:
+    """Run a tool from model-supplied arguments, checked against its schema first.
+
+    Raises ToolError for anything malformed, so callers can hand the message back to the model.
+    """
+    spec = _SPECS.get(name)
+    if spec is None:
+        raise ToolError(f"No tool named {name!r}.")
+    if not isinstance(args, dict):
+        raise ToolError("Tool input must be a JSON object.")
+    schema = spec["input_schema"]
+    props = schema.get("properties", {})
+    unknown = set(args) - set(props)
+    missing = [k for k in schema.get("required", []) if k not in args]
+    if unknown or missing:
+        raise ToolError(f"Unexpected {sorted(unknown)} / missing {missing} arguments for {name}.")
+    for k, v in args.items():
+        want = _JSON_TYPES[props[k]["type"]]
+        if v is not None and (not isinstance(v, want) or isinstance(v, bool)):
+            raise ToolError(f"{k} must be a {props[k]['type']}.")
+        if "enum" in props[k] and v not in props[k]["enum"]:
+            raise ToolError(f"{k} must be one of {props[k]['enum']}.")
+    return getattr(tools, name)(**args)

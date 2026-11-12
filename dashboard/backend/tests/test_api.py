@@ -29,12 +29,36 @@ def small_client(by_type):
 # ---------------------------------------------------------------- read-only surface
 
 
-def test_every_route_is_get_only():
+# The Coach chat is the one route that accepts POST; everything else stays read-only.
+WRITE_ROUTES = {"/api/coach/chat"}
+
+
+def test_every_route_is_get_only_except_the_coach():
     app = create_app(SETTINGS, MemorySource({}, SETTINGS))
     routes = [r for r in app.routes if isinstance(r, APIRoute)]
     assert routes, "expected API routes"
     for r in routes:
-        assert r.methods <= {"GET", "HEAD"}, f"{r.path} allows {r.methods}"
+        allowed = {"POST"} if r.path in WRITE_ROUTES else {"GET", "HEAD"}
+        assert r.methods <= allowed, f"{r.path} allows {r.methods}"
+
+
+@pytest.mark.parametrize("headers", [
+    {},                                                            # no custom header
+    {"x-coach": "1", "content-type": "text/plain"},                # a form/text post a page could send
+    {"x-coach": "1", "content-type": "application/json", "origin": "https://evil.example"},
+])
+def test_coach_chat_refuses_cross_site_requests(demo_client, headers):
+    r = demo_client.post("/api/coach/chat", content='{"message": "hi"}', headers=headers)
+    assert r.status_code == 403
+
+
+def test_coach_chat_without_api_key_explains_itself(demo_client, monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    r = demo_client.post("/api/coach/chat", json={"message": "hi"},
+                         headers={"x-coach": "1", "origin": "http://testserver"})
+    assert r.status_code == 200
+    assert "ANTHROPIC_API_KEY" in r.text
+    assert demo_client.get("/api/coach/status").json() == {"configured": False}
 
 
 @pytest.mark.parametrize("method", ["post", "put", "patch", "delete"])
