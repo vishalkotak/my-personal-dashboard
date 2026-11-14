@@ -58,7 +58,7 @@ def test_coach_chat_without_api_key_explains_itself(demo_client, monkeypatch):
                          headers={"x-coach": "1", "origin": "http://testserver"})
     assert r.status_code == 200
     assert "ANTHROPIC_API_KEY" in r.text
-    assert demo_client.get("/api/coach/status").json() == {"configured": False}
+    assert demo_client.get("/api/coach/status").json()["configured"] is False
 
 
 @pytest.mark.parametrize("method", ["post", "put", "patch", "delete"])

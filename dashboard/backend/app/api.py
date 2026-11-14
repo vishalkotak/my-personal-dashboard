@@ -8,7 +8,7 @@ import time as _time
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
-from typing import Annotated, Any, Callable
+from typing import Annotated, Any, Callable, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +22,7 @@ from . import service, units
 from .agent_tools import HealthTools
 from .catalog import Catalog, load_catalog
 from .coach import Coach
+from .local_coach import LocalCoach
 from .config import Settings, load_settings
 from .sources import MemorySource, PostgresSource, Source
 
@@ -92,7 +93,9 @@ def create_app(
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         app.state.source = source or build_source(settings)
-        app.state.coach = Coach(HealthTools(settings, app.state.source, catalog))
+        tools = HealthTools(settings, app.state.source, catalog)
+        app.state.coach = Coach(tools)
+        app.state.local_coach = LocalCoach(tools)  # the on-device model, when its server is running
         if not settings.demo:
             # Warm the slow, whole-table queries so the first page load doesn't wait for them.
             threading.Thread(target=warm, args=(app,), daemon=True, name="cache-warm").start()
@@ -286,6 +289,7 @@ def create_app(
     class ChatIn(BaseModel):
         message: str = Field(max_length=8000)
         conversation_id: str | None = Field(default=None, max_length=64)
+        engine: Literal["claude", "local"] = "claude"
 
     def same_origin_only(request: Request) -> None:
         """The only POST route spends API credit and can write notes, so refuse anything a
@@ -299,7 +303,10 @@ def create_app(
 
     @app.get("/api/coach/status")
     def coach_status() -> dict[str, Any]:
-        return {"configured": Coach.configured()}
+        local = LocalCoach.info()
+        return {"configured": Coach.configured(),
+                "local": {"available": local is not None, "model": local and local.get("base"),
+                          "fine_tuned": bool(local and local.get("adapter"))}}
 
     @app.post("/api/coach/chat")
     async def coach_chat(request: Request) -> StreamingResponse:
@@ -308,7 +315,8 @@ def create_app(
             body = ChatIn.model_validate_json(await request.body())
         except ValueError:
             raise HTTPException(422, "Expected {message, conversation_id?}") from None
-        events = request.app.state.coach.reply(body.conversation_id, body.message)
+        coach = request.app.state.local_coach if body.engine == "local" else request.app.state.coach
+        events = coach.reply(body.conversation_id, body.message)
         sse = (f"data: {json.dumps(e)}\n\n" for e in events)
         return StreamingResponse(sse, media_type="text/event-stream",
                                  headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
