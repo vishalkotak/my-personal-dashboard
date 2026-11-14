@@ -1,6 +1,6 @@
 """The on-device Coach: the same chat, answered by a small fine-tuned model running on this Mac.
 
-The model lives in a separate project (~/workspace/ml-projects/health-llm): Qwen3.5-0.8B with a
+The model lives in a separate project (~/workspace/mini-projects/ml/health-llm): Qwen3.5-0.8B with a
 LoRA adapter trained to behave like the Claude Coach. Its server runs the same health tools against
 the same database and speaks Claude's Messages API format on 127.0.0.1:8800, streaming each tool it
 runs as a `server_tool_use` block. Nothing leaves this computer.
@@ -62,7 +62,7 @@ class LocalCoach(Coach):
         type(self)._status = (0.0, None)  # re-check now rather than trust the cache
         if not self.configured():
             raise CoachUnavailable("The on-device model isn't running. Start it with "
-                                   "`uv run python -m healthllm.server` in ml-projects/health-llm.")
+                                   "`uv run python -m healthllm.server` in mini-projects/ml/health-llm.")
         import httpx
 
         return httpx

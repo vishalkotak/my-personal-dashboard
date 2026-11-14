@@ -4,7 +4,7 @@ import { useApi } from "../api";
 // Chat with the Coach, answered by one of two engines over the same read-only health tools
 // (backend/app/agent_tools.py):
 //   * Claude    - the Claude API (needs ANTHROPIC_API_KEY), backend/app/coach.py
-//   * On-device - a small fine-tuned model on this Mac (ml-projects/health-llm), backend/app/local_coach.py
+//   * On-device - a small fine-tuned model on this Mac (mini-projects/ml/health-llm), backend/app/local_coach.py
 // Replies stream as server-sent events: tool steps as they run, then the answer word by word.
 
 export type Engine = "claude" | "local";
@@ -306,7 +306,7 @@ export function Coach({ resetSignal }: { resetSignal: number }) {
         <p className="card-sub">The Coach answers questions from your own health data. Turn on either engine:</p>
         <ol>
           <li>
-            <strong>On-device</strong> (free, private): in <code>~/workspace/ml-projects/health-llm</code> run{" "}
+            <strong>On-device</strong> (free, private): in <code>~/workspace/mini-projects/ml/health-llm</code> run{" "}
             <code>uv run python -m healthllm.server</code>, then reload this page.
           </li>
           <li>
